@@ -14,13 +14,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.Offer
 import lab.android.chartersapp.charters.presentation.OfferViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun OfferListScreen(viewModel: OfferViewModel= hiltViewModel()) {
+fun OfferListScreen(viewModel: OfferViewModel = hiltViewModel()) {
     val offersState by viewModel.offers
 
     LaunchedEffect(Unit) {

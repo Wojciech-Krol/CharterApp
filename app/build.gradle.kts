@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -86,10 +87,16 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Hilt dependencies
     implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.lifecycle.viewmodel)
+    kapt(libs.hilt.compiler)
+
+// Hilt lifecycle components (necessary for ViewModel support)
+    kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+
+// Jetpack Compose lifecycle support for ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

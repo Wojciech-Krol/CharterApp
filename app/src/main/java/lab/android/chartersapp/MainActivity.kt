@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("offers_list") {
-                            val viewModel: OfferViewModel = viewModel()
+                            val viewModel: OfferViewModel by viewModels()
                             OfferListScreen(viewModel = viewModel)
                         }
 
