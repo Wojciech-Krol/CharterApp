@@ -79,6 +79,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.material3)
+    implementation(platform(libs.androidx.compose.bom.v2024xx)) // Use the latest version here
+    implementation(libs.ui)
+    implementation(libs.ui.tooling.preview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

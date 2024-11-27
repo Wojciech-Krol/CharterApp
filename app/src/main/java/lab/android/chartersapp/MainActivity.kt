@@ -1,5 +1,6 @@
 package lab.android.chartersapp
 
+import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,11 +23,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import lab.android.chartersapp.charters.presentation.ForgotPasswordViewModel
 import lab.android.chartersapp.charters.presentation.LoginViewModel
+import lab.android.chartersapp.charters.presentation.NavViewModel
 import lab.android.chartersapp.charters.presentation.OfferViewModel
 import lab.android.chartersapp.charters.presentation.RegisterViewModel
+import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
 
 @AndroidEntryPoint
@@ -35,10 +39,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            AppTheme {
                 val navController = rememberNavController()
-
-                Scaffold(
+                val navigationViewModel = remember { NavViewModel() }
+                NavigationBarBottom(viewModel = navigationViewModel)
+                /*Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     NavHost(
@@ -69,8 +74,8 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         // Additional navigation structure here...
-                    }
-                }
+                    }*/
+                //}
             }
         }
     }
