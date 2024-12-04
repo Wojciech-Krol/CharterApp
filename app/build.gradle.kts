@@ -67,6 +67,7 @@ dependencies {
 
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
+    implementation(libs.androidx.runtime.livedata)
 
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
@@ -102,8 +103,9 @@ dependencies {
 
 // Jetpack Compose lifecycle support for ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
+    implementation(libs.androidx.material)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
 
 }

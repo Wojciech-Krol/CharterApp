@@ -23,7 +23,7 @@ class NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://zrxc66ryqc.execute-api.eu-north-1.amazonaws.com/")
+            .baseUrl("https://127.0.0.1:8000")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

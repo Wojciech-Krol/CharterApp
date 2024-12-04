@@ -18,7 +18,7 @@ import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.Offer
 import lab.android.chartersapp.charters.presentation.OfferViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
-
+// UNUSED FOR NOW, WAITING FOR DATABASE AND THIS JUST HAS THE LOGIC TO COPY
 @Composable
 fun OfferListScreen(viewModel: OfferViewModel = hiltViewModel()) {
     val offersState by viewModel.offers

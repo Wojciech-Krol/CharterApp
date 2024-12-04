@@ -1,5 +1,6 @@
 package lab.android.chartersapp
 
+import NavViewModel
 import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,19 +20,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import lab.android.chartersapp.charters.presentation.ForgotPasswordViewModel
 import lab.android.chartersapp.charters.presentation.LoginViewModel
-import lab.android.chartersapp.charters.presentation.NavViewModel
 import lab.android.chartersapp.charters.presentation.OfferViewModel
 import lab.android.chartersapp.charters.presentation.RegisterViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
+import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
 import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
+import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
+import lab.android.chartersapp.charters.presentation.searchBar.SearchViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,45 +46,69 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 val navController = rememberNavController()
-                val navigationViewModel = remember { NavViewModel() }
-                NavigationBarBottom(viewModel = navigationViewModel)
-                /*Scaffold(
-                    modifier = Modifier.fillMaxSize()
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        NavigationBarBottom(
+                            viewModel=NavViewModel(),
+                            navController= navController // Pass the navController
+                        )
+                    }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "offers_list",
+                        startDestination = "home_page",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("offers_list") {
+                        composable("home_page") {
                             val viewModel: OfferViewModel by viewModels()
                             OfferListScreen(viewModel = viewModel)
                         }
 
-                        navigation(
-                            startDestination = "login_page",
-                            route = "auth"
+                        composable("chat_page"){
+                            val viewModel: SearchViewModel = viewModel()
+                            SearchScreen(navController,viewModel = viewModel)
+                        }
+                        composable(
+                            "details/{itemName}",
+                            arguments = listOf(navArgument("itemName") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val itemName = backStackEntry.arguments?.getString("itemName")
+                            OfferDetailScreen(itemName,navController)
+                        }
+
+                        composable("account_page"){
+                            val viewModel: OfferViewModel by viewModels()
+                            OfferListScreen(viewModel = viewModel)
+                        }
+
+
+                        /*navigation(
+                            startDestination = "home_page",
+                            route = "mainNav"
                         ) {
-                            composable("login") {
+                            composable("home") {
                                 val viewModel = it.sharedViewModel<LoginViewModel>(navController)
                                 // Call LoginScreen composable here
                             }
-                            composable("register") {
+                            composable("chat") {
                                 val viewModel = it.sharedViewModel<RegisterViewModel>(navController)
                                 // Call RegisterScreen composable here
                             }
-                            composable("forgot_password") {
+                            composable("account") {
                                 val viewModel = it.sharedViewModel<ForgotPasswordViewModel>(navController)
                                 // Call ForgotPasswordScreen composable here
                             }
-                        }
+                        }*/
                         // Additional navigation structure here...
-                    }*/
-                //}
+                    }
+                }
             }
         }
     }
 }
+
 
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
@@ -88,20 +117,4 @@ inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navControll
         navController.getBackStackEntry(navGraphRoute)
     }
     return viewModel(parentEntry)
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MaterialTheme {
-        Greeting("Android")
-    }
 }
