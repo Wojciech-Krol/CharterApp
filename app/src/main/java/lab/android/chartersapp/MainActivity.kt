@@ -1,21 +1,17 @@
 package lab.android.chartersapp
 
 import NavViewModel
-import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -23,20 +19,15 @@ import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import lab.android.chartersapp.charters.presentation.ForgotPasswordViewModel
-import lab.android.chartersapp.charters.presentation.LoginViewModel
-import lab.android.chartersapp.charters.presentation.OfferViewModel
-import lab.android.chartersapp.charters.presentation.RegisterViewModel
+import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
 import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
 import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
-import lab.android.chartersapp.charters.presentation.searchBar.SearchViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -62,12 +53,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("home_page") {
-                            val viewModel: OfferViewModel by viewModels()
+                            val viewModel: BoatViewModel by viewModels()
                             OfferListScreen(viewModel = viewModel)
                         }
 
                         composable("chat_page"){
-                            val viewModel: SearchViewModel = viewModel()
+                            val viewModel: BoatViewModel = hiltViewModel()
                             SearchScreen(navController,viewModel = viewModel)
                         }
                         composable(
@@ -75,11 +66,10 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("itemName") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val itemName = backStackEntry.arguments?.getString("itemName")
-                            OfferDetailScreen(itemName,navController)
+                            OfferDetailScreen(itemName = itemName, navController = navController)
                         }
-
                         composable("account_page"){
-                            val viewModel: OfferViewModel by viewModels()
+                            val viewModel: BoatViewModel by viewModels()
                             OfferListScreen(viewModel = viewModel)
                         }
 
