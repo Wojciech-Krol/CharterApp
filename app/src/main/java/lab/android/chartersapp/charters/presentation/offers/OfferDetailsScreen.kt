@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.rememberDateRangePickerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import lab.android.chartersapp.R
+import lab.android.chartersapp.charters.data.Boat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 
 data class CarouselItem(
@@ -74,15 +76,28 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
 
     val boatViewModel: BoatViewModel = hiltViewModel()
 
-    // Fetch boat details based on itemName (assuming the ViewModel is fetching data)
-    val boat by boatViewModel.getBoatByName(itemName).collectAsState(initial = null)
+    // State to store the selected boat
+    var boat by remember { mutableStateOf<Boat?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    if (boat != null) {
+    // Fetch the boat when the screen is loaded
+    LaunchedEffect(itemName) {
+        itemName?.let {
+            try {
+                boat = boatViewModel.getBoatByName(it)
+                if (boat == null) {
+                    errorMessage = "Boat not found"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Failed to fetch boat: ${e.message}"
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Item Details") },
+                title = { boat?.let { Text(it.name) } },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -124,7 +139,7 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
             ) {
                 // Boat name and model
                 Text(
-                    text = "${boat.name} (${boat.boatModel})",
+                    text = "${boat?.name} (${boat?.boatModel})",
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
@@ -135,23 +150,23 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
 
                 // General Information
                 InformationSection(title = "General Information", details = listOf(
-                    "Production Year: ${boat.productionYear}",
-                    "Company: ${boat.company}",
-                    "Mother Port: ${boat.motherPort}",
-                    "Description: ${boat.description}"
+                    "Production Year: ${boat?.productionYear}",
+                    "Company: ${boat?.company}",
+                    "Mother Port: ${boat?.motherPort}",
+                    "Description: ${boat?.description}"
                 ))
 
                 // Dimensions
                 InformationSection(title = "Dimensions", details = listOf(
-                    "Length: ${boat.length} meters",
-                    "Width: ${boat.width} meters",
-                    "Draft: ${boat.draft} meters"
+                    "Length: ${boat?.length} meters",
+                    "Width: ${boat?.width} meters",
+                    "Draft: ${boat?.draft} meters"
                 ))
 
                 // Pricing & Accommodation
                 InformationSection(title = "Pricing & Accommodation", details = listOf(
-                    "Price per Day: ${boat.pricePerDay} USD",
-                    "Beds: ${boat.beds}"
+                    "Price per Day: ${boat?.pricePerDay} USD",
+                    "Beds: ${boat?.beds}"
                 ))
             }
 

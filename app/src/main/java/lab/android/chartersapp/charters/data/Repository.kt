@@ -17,4 +17,17 @@ class BoatRepository @Inject constructor(private val apiService: OfferApiService
         // If the response is not successful, handle the error
         throw Exception("Failed to fetch boats")
     }
+
+    suspend fun fetchBoatByName(name: String): Boat? {
+        val response = apiService.getBoats() // Assuming you have the method to fetch all boats
+        if (response.isSuccessful) {
+            response.body()?.let {
+                // Find the boat by its name
+                return it.boats.find { boat -> boat.name == name }
+            }
+        }
+        // If the response is not successful, handle the error
+        throw Exception("Failed to fetch boat by name")
+    }
+
 }

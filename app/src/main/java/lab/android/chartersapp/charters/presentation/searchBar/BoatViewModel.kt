@@ -61,7 +61,8 @@ class BoatViewModel @Inject constructor(
         }
     }
 
-    fun getBoatByName(itemName: String?): Any {
-
+    fun getBoatByName(name: String?): Boat? {
+        // Find the boat by name from the filtered list
+        return _filteredBoats.value.find { boat -> boat.name.equals(name, ignoreCase = true) }
     }
 }
