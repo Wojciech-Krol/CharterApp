@@ -62,7 +62,12 @@ class BoatViewModel @Inject constructor(
     }
 
     fun getBoatByName(name: String?): Boat? {
-        // Find the boat by name from the filtered list
-        return _filteredBoats.value.find { boat -> boat.name.equals(name, ignoreCase = true) }
+                // Extract boats from _boats LiveData if the state is ApiState.Success
+        val currentBoats = (boats.value as? ApiState.Success)?.data.orEmpty()
+        Log.i("boats",currentBoats.toString())
+
+        // Find the boat by name in the extracted list
+        return currentBoats.find { boat -> boat.name.equals(name, ignoreCase = true) }
     }
+
 }

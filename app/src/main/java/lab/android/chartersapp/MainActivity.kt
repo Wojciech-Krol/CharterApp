@@ -8,9 +8,11 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,7 +24,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import lab.android.chartersapp.charters.data.Boat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
@@ -62,11 +66,18 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController,viewModel = viewModel)
                         }
                         composable(
-                            "details/{itemName}",
-                            arguments = listOf(navArgument("itemName") { type = NavType.StringType })
+                            "details/{boatJson}",
+                            arguments = listOf(navArgument("boatJson") { type = NavType.StringType })
                         ) { backStackEntry ->
-                            val itemName = backStackEntry.arguments?.getString("itemName")
-                            OfferDetailScreen(itemName = itemName, navController = navController)
+                            val boatJson = backStackEntry.arguments?.getString("boatJson")
+                            val boat = Gson().fromJson(boatJson, Boat::class.java) // Deserialize JSON to `Boat`
+
+                            if (boat != null) {
+                                OfferDetailScreen(item = boat, navController = navController)
+                            } else {
+                                // Handle case where the boat is null
+                                Text("Boat not found", modifier = Modifier.padding(16.dp))
+                            }
                         }
                         composable("account_page"){
                             val viewModel: BoatViewModel by viewModels()

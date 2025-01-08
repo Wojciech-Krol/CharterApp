@@ -1,5 +1,6 @@
 package lab.android.chartersapp.charters.presentation.offers
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -61,7 +62,7 @@ data class CarouselItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferDetailScreen(itemName: String?, navController: NavController) {
+fun OfferDetailScreen(item: Boat?, navController: NavController) {
     val items = listOf(
         CarouselItem(0, R.drawable.carousel_image_1, "Image 1 description"),
         CarouselItem(1, R.drawable.carousel_image_2, "Image 2 description"),
@@ -81,19 +82,10 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Fetch the boat when the screen is loaded
-    LaunchedEffect(itemName) {
-        itemName?.let {
-            try {
-                boat = boatViewModel.getBoatByName(it)
-                if (boat == null) {
-                    errorMessage = "Boat not found"
-                }
-            } catch (e: Exception) {
-                errorMessage = "Failed to fetch boat: ${e.message}"
-            }
-        }
+    LaunchedEffect(item) {
+       boat=item
     }
-
+    errorMessage?.let { Log.e("error", it) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -133,7 +125,7 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(128.dp)
+                    .height(256.dp)
                     .verticalScroll(rememberScrollState()) // Make the Column scrollable
                     .padding(4.dp)
             ) {
@@ -202,7 +194,7 @@ fun OfferDetailScreen(itemName: String?, navController: NavController) {
                 IconButton(
                     onClick = { showDatePicker = true },
                     modifier = Modifier
-                        .size(240.dp) // 48.dp (default size) * 5 = 240.dp
+                        .size(120.dp) // 48.dp (default size) * 5 = 240.dp
                 ) {
                     Icon(
                         Icons.Default.DateRange,
