@@ -11,6 +11,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +26,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import lab.android.chartersapp.charters.presentation.map.MapScreen
+import lab.android.chartersapp.charters.presentation.map.MapViewModel
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
@@ -53,8 +58,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable("home_page") {
-                            val viewModel: BoatViewModel by viewModels()
-                            OfferListScreen(viewModel = viewModel)
+                            val viewModel: MapViewModel by viewModels()
+                            MapScreen(viewModel = viewModel)
                         }
 
                         composable("chat_page"){
@@ -108,3 +113,4 @@ inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navControll
     }
     return viewModel(parentEntry)
 }
+
