@@ -7,14 +7,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.location.LocationManager
 import android.preference.PreferenceManager
-import android.widget.Button
 import android.widget.ImageButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import lab.android.chartersapp.R
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
@@ -25,7 +20,6 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import javax.inject.Inject
 
 class MapViewModel : ViewModel() {
 

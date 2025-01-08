@@ -1,31 +1,12 @@
 package lab.android.chartersapp.charters.presentation.map
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.location.Location
-import android.location.LocationManager
-import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.compose.AppTheme
 import lab.android.chartersapp.R
-import org.osmdroid.api.IMapController
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.ItemizedIconOverlay
-import org.osmdroid.views.overlay.OverlayItem
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 @Composable
 fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
