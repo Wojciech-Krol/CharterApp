@@ -107,5 +107,17 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
-
+    //Osmdroid
+    implementation("org.osmdroid:osmdroid-android:6.1.20") {
+        exclude(group = "com.j256.ormlite")
+    }
+    implementation("org.osmdroid:osmdroid-mapsforge:6.1.20") {
+        exclude(group = "com.j256.ormlite")
+    }
+    implementation("org.osmdroid:osmdroid-wms:6.1.20") {
+        exclude(group = "com.j256.ormlite")
+    }
+    implementation("org.osmdroid:osmdroid-geopackage:6.1.20") {
+        exclude(group = "com.j256.ormlite")
+    }
 }
