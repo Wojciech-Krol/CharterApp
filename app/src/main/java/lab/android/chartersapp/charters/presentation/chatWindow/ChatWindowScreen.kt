@@ -17,29 +17,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.Chat
 import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: ChatsViewModel = hiltViewModel()) {
+fun ChatWindowScreen(
+    navController: NavController,
+    chatJson: String,
+    viewModel: ChatsViewModel = hiltViewModel()
+) {
     val chat = remember { Gson().fromJson(chatJson, Chat::class.java) }
     var message by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
     val dateFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-
-    val chatsState by viewModel.chats.observeAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    val mockMessages = remember { mutableStateListOf<Pair<String, Boolean>>() }
+    val messages = remember { mutableStateListOf<Pair<String, Boolean>>() }
 
-    LaunchedEffect(chatsState) {
-        val updatedChat = (chatsState as? ApiState.Success<List<Chat>>)?.data?.find { it.id == chat.id }
-        if (updatedChat != null) {
-            mockMessages.clear()
-            mockMessages.addAll(updatedChat.lastMessage.split("\n").map { it to false })
+    LaunchedEffect(chat.id) {
+        val selectedChat = viewModel.getChatById(chat.id)
+        if (selectedChat != null) {
+            messages.clear()
+            selectedChat.lastMessage.split("\n").forEach {
+                messages.add(it to false) // Mock previous messages
+            }
         }
     }
 
@@ -63,7 +66,7 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
                 .verticalScroll(scrollState)
                 .padding(horizontal = 8.dp)
         ) {
-            mockMessages.forEach { (msg, isUser) ->
+            messages.forEach { (msg, isUser) ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -117,8 +120,7 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
                 onClick = {
                     if (message.isNotBlank()) {
                         coroutineScope.launch {
-                            mockMessages.add(message to true)
-                            mockMessages.add("Got it!" to false) // Simulate response
+                            messages.add(message to true) // Add user message
                             message = ""
                             scrollState.animateScrollTo(scrollState.maxValue)
                         }
@@ -136,7 +138,7 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
         }
     }
 
-    LaunchedEffect(key1 = mockMessages.size) {
+    LaunchedEffect(key1 = messages.size) {
         scrollState.animateScrollTo(scrollState.maxValue)
     }
 }

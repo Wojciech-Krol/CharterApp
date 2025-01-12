@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,6 +16,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import lab.android.chartersapp.R
 import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
+import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 
 data class CarouselItem(
     val id: Int,
@@ -61,7 +65,7 @@ data class CarouselItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferDetailScreen(item: Boat?, navController: NavController) {
+fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: ChatsViewModel = hiltViewModel()) {
     val items = listOf(
         CarouselItem(0, R.drawable.carousel_image_1, "Image 1 description"),
         CarouselItem(1, R.drawable.carousel_image_2, "Image 2 description"),
@@ -82,7 +86,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
 
     // Fetch the boat when the screen is loaded
     LaunchedEffect(item) {
-       boat=item
+        boat=item
     }
     errorMessage?.let { Log.e("error", it) }
     Scaffold(
@@ -190,7 +194,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     ),
                     color = MaterialTheme.colorScheme.primary,
 
-                )
+                    )
 
             }
             Box(
@@ -212,24 +216,39 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     )
                 }
             }
+
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp)
-                    .size(40.dp)
             ) {
-                Button(onClick = {
-                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:") // Only email apps should handle this
-                        putExtra(Intent.EXTRA_EMAIL, arrayOf("example@example.com"))
-                        putExtra(Intent.EXTRA_SUBJECT, "Inquiry about ${boat?.name}")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = {
+                        val newChat = viewModel.createChat(item?.name ?: "Unknown Owner")
+                        val chatJson = Gson().toJson(newChat) // Serialize the `Chat` object
+                        navController.navigate("chat_window/$chatJson")
+                    }) {
+                        Text("Chat with Owner")
                     }
-                    navController.context.startActivity(emailIntent)
-                }) {
-                    Text("Contact Owner")
+
+                    Button(onClick = {
+                        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:") // Tylko aplikacje email powinny obsługiwać to
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf(item?.contactEmail))
+                            putExtra(Intent.EXTRA_SUBJECT, "Inquiry about ${item?.name}")
+                        }
+                        navController.context.startActivity(emailIntent)
+                    }) {
+                        Text("Contact Owner")
+                    }
                 }
-        }}
+            }
+
+            }}
 
         // Show Material Date Range Picker
         if (showDatePicker) {
@@ -252,7 +271,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
 
 
     }
-}
+
 @Composable
 fun InformationSection(title: String, details: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {

@@ -21,7 +21,10 @@ import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.Chat
 
 @Composable
-fun ChatsScreen(navController: NavController, viewModel: ChatsViewModel = hiltViewModel()) {
+fun ChatsScreen(
+    navController: NavController,
+    viewModel: ChatsViewModel = hiltViewModel()
+) {
     val chatsState by viewModel.chats.observeAsState(ApiState.Loading)
 
     LaunchedEffect(Unit) {
