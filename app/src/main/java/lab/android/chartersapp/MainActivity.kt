@@ -28,16 +28,16 @@ import com.example.compose.AppTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import lab.android.chartersapp.charters.data.Boat
+import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
+import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
+import lab.android.chartersapp.charters.presentation.map.MapScreen
+import lab.android.chartersapp.charters.presentation.map.MapViewModel
 
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
 import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
 import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
-import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
-import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
-import lab.android.chartersapp.charters.presentation.map.MapScreen
-import lab.android.chartersapp.charters.presentation.map.MapViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,13 +59,9 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "login_page",
+                        startDestination = "home_page",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("login_page") {
-                            val viewModel: LoginPageViewModel = hiltViewModel()
-                            LoginPageScreen(navController, viewModel)
-                        }
                         composable("home_page") {
                             val viewModel: MapViewModel by viewModels()
                             MapScreen(viewModel = viewModel)
@@ -90,15 +86,36 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable("account_page"){
-                            val viewModel: BoatViewModel by viewModels()
-                            OfferListScreen(viewModel = viewModel)
+                            val viewModel: LoginPageViewModel by viewModels()
+                            LoginPageScreen(navController,viewModel = viewModel)
                         }
+
+
+                        /*navigation(
+                            startDestination = "home_page",
+                            route = "mainNav"
+                        ) {
+                            composable("home") {
+                                val viewModel = it.sharedViewModel<LoginViewModel>(navController)
+                                // Call LoginScreen composable here
+                            }
+                            composable("chat") {
+                                val viewModel = it.sharedViewModel<RegisterViewModel>(navController)
+                                // Call RegisterScreen composable here
+                            }
+                            composable("account") {
+                                val viewModel = it.sharedViewModel<ForgotPasswordViewModel>(navController)
+                                // Call ForgotPasswordScreen composable here
+                            }
+                        }*/
+                        // Additional navigation structure here...
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
@@ -108,3 +125,4 @@ inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navControll
     }
     return viewModel(parentEntry)
 }
+
