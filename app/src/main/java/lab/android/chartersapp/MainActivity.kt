@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,7 @@ import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import lab.android.chartersapp.charters.data.Boat
 
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
@@ -34,6 +36,8 @@ import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
 import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
+import lab.android.chartersapp.charters.presentation.map.MapScreen
+import lab.android.chartersapp.charters.presentation.map.MapViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
