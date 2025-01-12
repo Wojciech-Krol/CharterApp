@@ -15,6 +15,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,25 +37,106 @@ fun MapScreen(navController: NavController,viewModel: MapViewModel = hiltViewMod
     val scaffoldState = rememberBottomSheetScaffoldState()
     val offersState by boatViewModel.boats.observeAsState(ApiState.Loading)
     val filteredBoats by boatViewModel.filteredBoats.collectAsState()
-    var selectedPort by remember { mutableStateOf<OverlayItem?>(null) }
+    var selectedPortFromOSMDroid by remember { mutableStateOf<OverlayItem?>(null) }
+    val selectedPort by viewModel.selectedPort
 
     val searchQuery by boatViewModel.searchQuery.collectAsState()
     var isExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         boatViewModel.getBoats()
+        viewModel.getPorts()
     }
+
+    val screenHeight = LocalDensity.current.run { context.resources.displayMetrics.heightPixels.toDp() }
+    val maxHeight = screenHeight * 2 / 3
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            selectedPort?.let { port ->
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = port.title, style = MaterialTheme.typography.titleMedium)
-                    Text(text = port.snippet)
+            selectedPortFromOSMDroid?.let { port ->
+                Column(modifier = Modifier.padding(16.dp).heightIn(max = maxHeight)) {
+                    Log.i("MapScreen", "Selected port: ${port.title}")
+                    LaunchedEffect(port.title) {
+                        viewModel.getPortByName(port.title)
+                        boatViewModel.getBoatsByPort(port.title)
+                    }
+                    selectedPort?.name?.let { Text(text = it, style = MaterialTheme.typography.titleMedium) }
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Display boat offers here
-                    // Example: Text("Boat offers for ${port.title}")
+                    Box(modifier = Modifier.padding(8.dp)) {
+                        Column {
+                            Text(text = "Country: ${selectedPort?.country}", style = MaterialTheme.typography.bodyMedium)
+                            Text(text = "City: ${selectedPort?.city}", style = MaterialTheme.typography.bodyMedium)
+                            Text(text = "Address: ${selectedPort?.address}", style = MaterialTheme.typography.bodyMedium)
+                            selectedPort?.contactPhone?.let { Text(text = "Phone: $it", style = MaterialTheme.typography.bodyMedium) }
+                            selectedPort?.contactEmail?.let { Text(text = "Email: $it", style = MaterialTheme.typography.bodyMedium) }
+                            selectedPort?.website?.let { Text(text = "Website: $it", style = MaterialTheme.typography.bodyMedium) }
+                            selectedPort?.places?.let { Text(text = "Places: $it", style = MaterialTheme.typography.bodyMedium) }
+                            Text(text = "Description: ${selectedPort?.description}", style = MaterialTheme.typography.bodyMedium)
+                            Text(text = "Coordinates: (${selectedPort?.latitude}, ${selectedPort?.longitude})", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Boat offers for ${port.title}", style = MaterialTheme.typography.titleSmall)
+                    when (offersState) {
+                        is ApiState.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        is ApiState.Success<*> -> {
+                            LazyColumn {
+                                items(filteredBoats.size) { index ->
+                                    val boat = filteredBoats[index]
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(boat.name)
+                                        },
+                                        supportingContent = {
+                                            Text("${boat.boatModel} - ${boat.productionYear}")
+                                        },
+                                        leadingContent = {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(60.dp)
+                                                    .background(
+                                                        MaterialTheme.colorScheme.primaryContainer,
+                                                        CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = boat.name.firstOrNull()?.toString() ?: "",
+                                                    fontSize = 30.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .clickable {
+                                                val boatJson = Gson().toJson(boat) // Serialize the `Boat` object
+                                                navController.navigate("details/$boatJson")
+                                            }
+                                    )
+                                }
+                            }
+                        }
+                        is ApiState.Error -> {
+                            val error = (offersState as ApiState.Error).message
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "Failed to fetch data: $error")
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -82,7 +164,7 @@ fun MapScreen(navController: NavController,viewModel: MapViewModel = hiltViewMod
                 // Initialize the map and location button after they are assigned
                 try {
                     viewModel.initMap(context) { port ->
-                        selectedPort = port
+                        selectedPortFromOSMDroid = port
                         coroutineScope.launch {
                             scaffoldState.bottomSheetState.expand()
                         }

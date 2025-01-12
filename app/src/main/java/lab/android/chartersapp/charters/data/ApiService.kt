@@ -54,6 +54,6 @@ interface PortsApiService {
     @GET("ports/")
     suspend fun getPorts(): Response<PortsResponse>
 
-    @GET("ports/details/")
+    @GET("port/details/")
     suspend fun getPortDetails(@Query("portName") portName: String): Response<Port>
 }

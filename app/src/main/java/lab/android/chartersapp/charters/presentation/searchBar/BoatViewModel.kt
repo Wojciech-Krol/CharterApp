@@ -44,6 +44,20 @@ class BoatViewModel @Inject constructor(
         }
     }
 
+    fun getBoatsByPort(port: String) {
+        viewModelScope.launch {
+            try {
+                val result = boatRepository.fetchBoatsByPort(port)
+                Log.d("API Response", "Boats fetched successfully: $result") // Log response
+                _boats.value = ApiState.Success(result)
+                _filteredBoats.value = result // Populate filtered list initially
+            } catch (e: Exception) {
+                Log.e("API Error", "Failed to fetch boats: ${e.message}") // Log error
+                _boats.value = ApiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
+
     fun updateQuery(query: String) {
         _searchQuery.update { query }
         filterBoats()
