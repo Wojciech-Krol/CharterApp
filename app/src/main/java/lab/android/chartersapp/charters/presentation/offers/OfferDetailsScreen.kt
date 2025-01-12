@@ -1,5 +1,7 @@
 package lab.android.chartersapp.charters.presentation.offers
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -25,6 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,7 +93,16 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { boat?.let { Text(it.name) } },
+                title = { boat?.let {
+                    Text(
+                        text = it.name,
+                        style = TextStyle(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF000000)
+                        )
+                    )
+                } },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -173,7 +186,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     text = if (startDate != null && endDate != null) {
                         "Selected: $startDate to $endDate"
                     } else {
-                        "Select a date range"
+                        "Check availability"
                     },
                     style = TextStyle(
                         fontSize = 24.sp,
@@ -189,12 +202,12 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(4.dp)
             ) {
                 IconButton(
                     onClick = { showDatePicker = true },
                     modifier = Modifier
-                        .size(120.dp) // 48.dp (default size) * 5 = 240.dp
+                        .size(100.dp) // 48.dp (default size) * 5 = 240.dp
                 ) {
                     Icon(
                         Icons.Default.DateRange,
@@ -204,8 +217,24 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     )
                 }
             }
-
-        }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                    .size(40.dp)
+            ) {
+                Button(onClick = {
+                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:") // Only email apps should handle this
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("example@example.com"))
+                        putExtra(Intent.EXTRA_SUBJECT, "Inquiry about ${boat?.name}")
+                    }
+                    navController.context.startActivity(emailIntent)
+                }) {
+                    Text("Contact Owner")
+                }
+        }}
 
         // Show Material Date Range Picker
         if (showDatePicker) {
@@ -225,6 +254,8 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                 DateRangePicker(state = datePickerState)
             }
         }
+
+
     }
 }
 @Composable
