@@ -33,20 +33,24 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
     val chatsState by viewModel.chats.observeAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    val mockMessages = remember { mutableStateListOf("Hello, how can I help you?", "I need information about boat rentals.") }
+    val mockMessages = remember { mutableStateListOf<Pair<String, Boolean>>(
+        "Hello, how can I help you?" to false,
+        "I need information about boat rentals." to true
+    ) }
 
     LaunchedEffect(chatsState) {
         val updatedChat = (chatsState as? ApiState.Success<List<Chat>>)?.data?.find { it.id == chat.id }
         if (updatedChat != null) {
             mockMessages.clear()
-            mockMessages.addAll(updatedChat.lastMessage.split("\n"))
+            mockMessages.addAll(updatedChat.lastMessage.split("\n").map { it to false })
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(Color(0xFFEFEFF4)) // Light gray background
+            .padding(8.dp)
     ) {
         Text(
             text = "Chat with ${chat.ownerName}",
@@ -54,62 +58,76 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF333333)
             ),
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(8.dp)
         )
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(bottom = 16.dp)
+                .padding(horizontal = 8.dp)
         ) {
-            mockMessages.forEach { msg ->
-                Column(
+            mockMessages.forEach { (msg, isUser) ->
+                Row(
                     modifier = Modifier
-                        .background(Color(0xFFF0F0F0))
-                        .padding(8.dp)
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
                 ) {
-                    Text(
-                        text = msg,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 16.sp,
-                            color = Color(0xFF666666)
-                        )
-                    )
-                    Text(
-                        text = dateFormat.format(Date()),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 12.sp,
-                            color = Color(0xFF999999)
-                        ),
-                        modifier = Modifier.align(Alignment.End)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                if (isUser) Color(0xFF0A84FF) else Color(0xFFE0E0E0), // Blue for user, gray for others
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(12.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = msg,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 16.sp,
+                                    color = if (isUser) Color.White else Color.Black
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = dateFormat.format(Date()),
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 12.sp,
+                                    color = if (isUser) Color(0xFFCCE7FF) else Color(0xFF757575)
+                                ),
+                                modifier = Modifier.align(Alignment.End)
+                            )
+                        }
+                    }
                 }
             }
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
                 value = message,
                 onValueChange = { message = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Type a message") }
+                placeholder = { Text("Type a message") },
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                if (message.isNotBlank()) {
-                    coroutineScope.launch {
-                        mockMessages.add(message)
-                        message = ""
-                        scrollState.animateScrollTo(scrollState.maxValue)
+            Button(
+                onClick = {
+                    if (message.isNotBlank()) {
+                        coroutineScope.launch {
+                            mockMessages.add(message to true)
+                            mockMessages.add("Got it!" to false) // Simulate response
+                            message = ""
+                            scrollState.animateScrollTo(scrollState.maxValue)
+                        }
                     }
                 }
-            }) {
+            ) {
                 Text("Send")
             }
         }
