@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import lab.android.chartersapp.charters.data.ApiState
 import androidx.hilt.navigation.compose.hiltViewModel
-import lab.android.chartersapp.charters.data.Boat
+import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 
 @Composable

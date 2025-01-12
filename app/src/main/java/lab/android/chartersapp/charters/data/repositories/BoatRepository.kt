@@ -1,10 +1,10 @@
-package lab.android.chartersapp.charters.data
+package lab.android.chartersapp.charters.data.repositories
 
-import android.util.Log
-import retrofit2.Response
+import lab.android.chartersapp.charters.data.BoatsApiService
+import lab.android.chartersapp.charters.data.dataclasses.Boat
 import javax.inject.Inject
 
-class BoatRepository @Inject constructor(private val apiService: OfferApiService) {
+class BoatRepository @Inject constructor(private val apiService: BoatsApiService) {
     suspend fun fetchBoats(): List<Boat> {
         val response = apiService.getBoats()
         if (response.isSuccessful) {

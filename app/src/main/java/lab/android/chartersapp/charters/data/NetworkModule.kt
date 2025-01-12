@@ -53,7 +53,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): OfferApiService {
-        return retrofit.create(OfferApiService::class.java)
+    fun provideApiService(retrofit: Retrofit): BoatsApiService {
+        return retrofit.create(BoatsApiService::class.java)
     }
 }
