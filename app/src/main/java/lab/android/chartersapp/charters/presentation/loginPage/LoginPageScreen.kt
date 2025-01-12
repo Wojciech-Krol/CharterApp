@@ -1,14 +1,18 @@
 package lab.android.chartersapp.charters.presentation.loginPage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import lab.android.chartersapp.R
 
 @Composable
 fun LoginPageScreen(navController: NavController, viewModel: LoginPageViewModel = hiltViewModel()) {
@@ -20,8 +24,16 @@ fun LoginPageScreen(navController: NavController, viewModel: LoginPageViewModel 
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo",
+            modifier = Modifier.size(256.dp) // Adjust the size as needed
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         TextField(
             value = username,
             onValueChange = { username = it },
@@ -39,18 +51,21 @@ fun LoginPageScreen(navController: NavController, viewModel: LoginPageViewModel 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { viewModel.login(username, password) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.width(120.dp).align(Alignment.CenterHorizontally)
         ) {
             Text("Login")
         }
 
-        loginResult?.let {
-            if (it) {
-                Text("Login successful!", color = MaterialTheme.colorScheme.primary)
-                // Navigate to the home page
-                navController.navigate("home_page") {
-                    popUpTo("login_page") { inclusive = true }
+        loginResult?.let { result ->
+            LaunchedEffect(result) {
+                if (result) {
+                    navController.navigate("account_page") {
+                        popUpTo("login_page") { inclusive = true }
+                    }
                 }
+            }
+            if (result) {
+                Text("Login successful!", color = MaterialTheme.colorScheme.primary)
             } else {
                 Text("Login failed. Please try again.", color = MaterialTheme.colorScheme.error)
             }

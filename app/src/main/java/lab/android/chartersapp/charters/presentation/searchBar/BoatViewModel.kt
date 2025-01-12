@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lab.android.chartersapp.charters.data.ApiState
-import lab.android.chartersapp.charters.data.Boat
-import lab.android.chartersapp.charters.data.BoatRepository
+import lab.android.chartersapp.charters.data.dataclasses.Boat
+import lab.android.chartersapp.charters.data.repositories.BoatRepository
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +34,20 @@ class BoatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = boatRepository.fetchBoats()
+                Log.d("API Response", "Boats fetched successfully: $result") // Log response
+                _boats.value = ApiState.Success(result)
+                _filteredBoats.value = result // Populate filtered list initially
+            } catch (e: Exception) {
+                Log.e("API Error", "Failed to fetch boats: ${e.message}") // Log error
+                _boats.value = ApiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
+
+    fun getBoatsByPort(port: String) {
+        viewModelScope.launch {
+            try {
+                val result = boatRepository.fetchBoatsByPort(port)
                 Log.d("API Response", "Boats fetched successfully: $result") // Log response
                 _boats.value = ApiState.Success(result)
                 _filteredBoats.value = result // Populate filtered list initially
