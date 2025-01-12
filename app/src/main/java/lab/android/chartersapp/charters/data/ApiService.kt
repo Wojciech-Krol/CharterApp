@@ -1,11 +1,16 @@
 package lab.android.chartersapp.charters.data
 
 import android.graphics.drawable.Drawable
+import lab.android.chartersapp.charters.data.dataclasses.AddCharterResponse
+import lab.android.chartersapp.charters.data.dataclasses.AuthResponse
 import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.data.dataclasses.BoatPhoto
+import lab.android.chartersapp.charters.data.dataclasses.BoatPhotoResponse
+import lab.android.chartersapp.charters.data.dataclasses.BoatResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
 import lab.android.chartersapp.charters.data.dataclasses.Port
+import lab.android.chartersapp.charters.data.dataclasses.PortResponse
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
 import okhttp3.ResponseBody
@@ -20,17 +25,17 @@ interface AuthApiService {
     suspend fun login(
         @Query("username") username: String,
         @Query("password") password: String
-    ): Response<Boolean>
+    ): Response<AuthResponse>
 
     @POST("logout/")
-    suspend fun logout(): Response<Boolean>
+    suspend fun logout(): Response<AuthResponse>
 
     @POST("register/")
     suspend fun register(
         @Query("username") username: String,
         @Query("password") password: String,
         @Query("email") email: String
-    ): Response<Boolean>
+    ): Response<AuthResponse>
 
     @GET("getUser/")
     suspend fun getUser(): Response<UserData>
@@ -39,12 +44,12 @@ interface AuthApiService {
     suspend fun changePassword(
         @Query("oldPassword") oldPassword: String,
         @Query("newPassword") newPassword: String
-    ): Response<Boolean>
+    ): Response<AuthResponse>
 
     @POST("changeEmail/")
     suspend fun changeEmail(
         @Query("newEmail") newEmail: String
-    ): Response<Boolean>
+    ): Response<AuthResponse>
 }
 
 interface BoatsApiService {
@@ -58,10 +63,10 @@ interface BoatsApiService {
     suspend fun getBoatsByCompany(@Query("companyName") companyName: String): Response<BoatsResponse>
 
     @GET("boats/details/")
-    suspend fun getBoatDetails(@Query("boatName") boatName: String): Response<Boat>
+    suspend fun getBoatDetails(@Query("boatName") boatName: String): Response<BoatResponse>
 
     @GET("boatPhotos/")
-    suspend fun getBoatPhotos(@Query("boatName") boatName: String): Response<List<BoatPhoto>>
+    suspend fun getBoatPhotos(@Query("boatName") boatName: String): Response<BoatPhotoResponse>
 
     @GET("photos/{img_name}/")
     suspend fun getPhoto(@Path("img_name") imgName: String): Response<ResponseBody>
@@ -79,7 +84,7 @@ interface ChartersApiService {
         @Query("boatName") boatName: String,
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String
-    ): Response<Boolean>
+    ): Response<AddCharterResponse>
 }
 
 interface PortsApiService {
@@ -87,5 +92,5 @@ interface PortsApiService {
     suspend fun getPorts(): Response<PortsResponse>
 
     @GET("port/details/")
-    suspend fun getPortDetails(@Query("portName") portName: String): Response<Port>
+    suspend fun getPortDetails(@Query("portName") portName: String): Response<PortResponse>
 }

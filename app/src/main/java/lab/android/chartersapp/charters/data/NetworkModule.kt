@@ -1,13 +1,17 @@
 package lab.android.chartersapp.charters.data
 
 import android.annotation.SuppressLint
+import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.inject.Singleton
@@ -37,6 +41,7 @@ class NetworkModule {
         return OkHttpClient.Builder()
             .sslSocketFactory(sslContext.socketFactory, trustManager)
             .hostnameVerifier { _, _ -> true } // Disable hostname verification
+            .addInterceptor(LoggingInterceptor())
             .build()
     }
 
@@ -62,4 +67,26 @@ class NetworkModule {
         return retrofit.create(PortsApiService::class.java)
     }
 
+}
+
+class LoggingInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        Log.d("HTTP Request", "URL: ${request.url()}")
+
+        val response = chain.proceed(request)
+        val responseBody = response.body()
+        val contentLength = responseBody?.contentLength() ?: 0
+
+        if (contentLength != 0L) {
+            val source = responseBody?.source()
+            source?.request(Long.MAX_VALUE) // Buffer the entire body.
+            val buffer = source?.buffer
+            val charset = responseBody?.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
+            val bodyString = buffer?.clone()?.readString(charset)
+            Log.d("HTTP Response", "Body: $bodyString")
+        }
+
+        return response
+    }
 }

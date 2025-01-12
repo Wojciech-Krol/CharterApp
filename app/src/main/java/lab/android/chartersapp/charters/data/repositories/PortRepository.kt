@@ -21,7 +21,7 @@ class PortRepository @Inject constructor(private val apiService: PortsApiService
         val response = apiService.getPortDetails(name)
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                return it.port
             }
         }
         // If the response is not successful, handle the error

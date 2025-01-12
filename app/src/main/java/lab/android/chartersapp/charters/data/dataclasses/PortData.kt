@@ -1,20 +1,27 @@
 package lab.android.chartersapp.charters.data.dataclasses
 
+import com.google.gson.annotations.SerializedName
+
 data class PortsResponse(
     val status: String,
     val ports: List<Port>
 )
 
+data class PortResponse(
+    val status: String,
+    val port: Port
+)
+
 data class Port(
-    val name: String,
-    val country: String,
-    val city: String,
-    val address: String,
-    val contactPhone: String?,
-    val contactEmail: String?,
-    val website: String?,
-    val places: Int?,
-    val description: String,
-    val longitude: Double,
-    val latitude: Double
+    @SerializedName("name") val name: String,
+    @SerializedName("country") val country: String,
+    @SerializedName("city") val city: String,
+    @SerializedName("address") val address: String,
+    @SerializedName("phoneNumber") val phoneNumber: String?,
+    @SerializedName("email") val email: String?,
+    @SerializedName("website") val website: String?,
+    @SerializedName("places") val places: Int?,
+    @SerializedName("description") val description: String,
+    @SerializedName("longitude") val longitude: Double,
+    @SerializedName("latitude") val latitude: Double
 )

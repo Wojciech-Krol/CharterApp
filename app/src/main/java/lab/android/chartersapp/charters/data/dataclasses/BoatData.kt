@@ -5,6 +5,11 @@ data class BoatsResponse(
     val boats: List<Boat>
 )
 
+data class BoatResponse(
+    val status: String,
+    val boat: Boat
+)
+
 data class Boat(
     val name: String,
     val boatModel: String,
@@ -19,6 +24,11 @@ data class Boat(
     val beds: Int,
     val pricePerDay: Int,
     val description: String
+)
+
+data class BoatPhotoResponse(
+    val status: String,
+    val photos: List<BoatPhoto>
 )
 
 data class BoatPhoto(

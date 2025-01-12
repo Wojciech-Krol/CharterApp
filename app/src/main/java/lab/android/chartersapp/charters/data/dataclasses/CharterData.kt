@@ -12,3 +12,8 @@ data class Charter(
     val price: Int?,
     val user: String?
 )
+
+data class AddCharterResponse(
+    val status: String,
+    val message: String?
+)

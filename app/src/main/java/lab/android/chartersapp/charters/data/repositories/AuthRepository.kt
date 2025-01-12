@@ -8,7 +8,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         val response = apiService.login(username, password)
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 
@@ -19,7 +21,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         val response = apiService.logout()
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 
@@ -30,7 +34,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         val response = apiService.register(username, password, email)
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 
@@ -51,7 +57,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         val response = apiService.changePassword(oldPassword, newPassword)
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 
@@ -62,7 +70,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         val response = apiService.changeEmail(newEmail)
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 

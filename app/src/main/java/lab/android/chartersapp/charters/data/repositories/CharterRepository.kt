@@ -32,7 +32,9 @@ class CharterRepository @Inject constructor(private val apiService: ChartersApiS
         val response = apiService.addCharter(boatName, startDate.toString(), endDate.toString())
         if (response.isSuccessful) {
             response.body()?.let {
-                return it
+                if (it.status == "success") {
+                    return true
+                }
             }
         }
 

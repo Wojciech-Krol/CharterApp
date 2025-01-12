@@ -68,8 +68,8 @@ fun MapScreen(navController: NavController,viewModel: MapViewModel = hiltViewMod
                             Text(text = "Country: ${selectedPort?.country}", style = MaterialTheme.typography.bodyMedium)
                             Text(text = "City: ${selectedPort?.city}", style = MaterialTheme.typography.bodyMedium)
                             Text(text = "Address: ${selectedPort?.address}", style = MaterialTheme.typography.bodyMedium)
-                            selectedPort?.contactPhone?.let { Text(text = "Phone: $it", style = MaterialTheme.typography.bodyMedium) }
-                            selectedPort?.contactEmail?.let { Text(text = "Email: $it", style = MaterialTheme.typography.bodyMedium) }
+                            selectedPort?.phoneNumber?.let { Text(text = "Phone: $it", style = MaterialTheme.typography.bodyMedium) }
+                            selectedPort?.email?.let { Text(text = "Email: $it", style = MaterialTheme.typography.bodyMedium) }
                             selectedPort?.website?.let { Text(text = "Website: $it", style = MaterialTheme.typography.bodyMedium) }
                             selectedPort?.places?.let { Text(text = "Places: $it", style = MaterialTheme.typography.bodyMedium) }
                             Text(text = "Description: ${selectedPort?.description}", style = MaterialTheme.typography.bodyMedium)

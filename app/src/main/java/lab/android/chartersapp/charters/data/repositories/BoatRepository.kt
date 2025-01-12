@@ -2,8 +2,10 @@ package lab.android.chartersapp.charters.data.repositories
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.provider.ContactsContract.Contacts.Photo
 import lab.android.chartersapp.charters.data.BoatsApiService
 import lab.android.chartersapp.charters.data.dataclasses.Boat
+import lab.android.chartersapp.charters.data.dataclasses.BoatPhoto
 import javax.inject.Inject
 
 class BoatRepository @Inject constructor(private val apiService: BoatsApiService) {
@@ -51,7 +53,7 @@ class BoatRepository @Inject constructor(private val apiService: BoatsApiService
         if (response.isSuccessful) {
             response.body()?.let {
                 // Return the boat details
-                return it
+                return it.boat
             }
         }
 
@@ -59,12 +61,12 @@ class BoatRepository @Inject constructor(private val apiService: BoatsApiService
         throw Exception("Failed to fetch boat details, response code: ${response.code()}, message: ${response.message()}")
     }
 
-    suspend fun fetchBoatPhotos(boatName: String): List<String> {
+    suspend fun fetchBoatPhotos(boatName: String): List<BoatPhoto> {
         val response = apiService.getBoatPhotos(boatName)
         if (response.isSuccessful) {
             response.body()?.let {
                 // Return the list of photo URLs
-                return it.map { photo -> photo.url }
+                return it.photos
             }
         }
 
