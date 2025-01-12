@@ -23,9 +23,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import javax.inject.Inject
 
-class MapViewModel @Inject constructor(
-    private val portRepository: PortRepository
-) : ViewModel() {
+class MapViewModel : ViewModel() {
 
     lateinit var map: MapView
     lateinit var locationButton: ImageButton
