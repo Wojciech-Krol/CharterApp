@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import lab.android.chartersapp.charters.data.*
+import lab.android.chartersapp.charters.data.ApiState
+import lab.android.chartersapp.charters.data.Chat
 import javax.inject.Inject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,8 +20,18 @@ class ChatsViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             try {
                 val mockChats = listOf(
-                    Chat(id = 1, ownerName = "Owner 1", lastMessage = "Hello, how can I help you?", timestamp = System.currentTimeMillis()),
-                    Chat(id = 2, ownerName = "Owner 2", lastMessage = "I need information about boat rentals.", timestamp = System.currentTimeMillis())
+                    Chat(
+                        id = 1,
+                        ownerName = "Owner 1",
+                        lastMessage = "Hello, how can I help you?",
+                        timestamp = System.currentTimeMillis()
+                    ),
+                    Chat(
+                        id = 2,
+                        ownerName = "Owner 2",
+                        lastMessage = "I need information about boat rentals.",
+                        timestamp = System.currentTimeMillis()
+                    )
                 )
                 _chats.value = ApiState.Success(mockChats)
             } catch (e: Exception) {

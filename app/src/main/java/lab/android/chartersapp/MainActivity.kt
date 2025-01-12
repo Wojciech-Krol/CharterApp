@@ -76,6 +76,20 @@ class MainActivity : ComponentActivity() {
                             ChatsScreen(navController, viewModel = viewModel)
                         }
                         composable(
+                            "details/{boatJson}",
+                            arguments = listOf(navArgument("boatJson") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val boatJson = backStackEntry.arguments?.getString("boatJson")
+                            val boat = Gson().fromJson(boatJson, Boat::class.java) // Deserialize JSON to `Boat`
+
+                            if (boat != null) {
+                                OfferDetailScreen(item = boat, navController = navController)
+                            } else {
+                                // Handle case where the boat is null
+                                Text("Boat not found", modifier = Modifier.padding(16.dp))
+                            }
+                        }
+                        composable(
                             "chat_window/{chatJson}",
                             arguments = listOf(navArgument("chatJson") { type = NavType.StringType })
                         ) { backStackEntry ->
@@ -90,7 +104,7 @@ class MainActivity : ComponentActivity() {
                             val viewModel: LoginPageViewModel by viewModels()
                             LoginPageScreen(navController, viewModel = viewModel)
                         }
-                        // Additional navigation structure here...
+
                     }
                 }
             }
