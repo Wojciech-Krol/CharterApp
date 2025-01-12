@@ -133,7 +133,7 @@ fun NavigationBarBottom(navController: NavController, viewModel: NavViewModel) {
             hasNews = true // Example news indicator
         ),
         NavViewModel.NavigationItem(
-            route = "account_page",
+            route = "login_page",
             title = "Account",
             selectedIcon = Icons.Filled.AccountCircle,
             unselectedIcon = Icons.Outlined.AccountCircle,

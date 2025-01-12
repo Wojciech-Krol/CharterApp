@@ -28,6 +28,8 @@ import com.example.compose.AppTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import lab.android.chartersapp.charters.data.Boat
+import lab.android.chartersapp.charters.presentation.accountPage.AccountPageScreen
+import lab.android.chartersapp.charters.presentation.accountPage.AccountPageViewModel
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
 import lab.android.chartersapp.charters.presentation.map.MapScreen
@@ -36,7 +38,6 @@ import lab.android.chartersapp.charters.presentation.map.MapViewModel
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
-import lab.android.chartersapp.charters.presentation.offers.OfferListScreen
 import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
 
 @AndroidEntryPoint
@@ -86,6 +87,10 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable("account_page"){
+                            val viewModel: AccountPageViewModel by viewModels()
+                            AccountPageScreen(viewModel = viewModel)
+                        }
+                        composable("login_page"){
                             val viewModel: LoginPageViewModel by viewModels()
                             LoginPageScreen(navController,viewModel = viewModel)
                         }
