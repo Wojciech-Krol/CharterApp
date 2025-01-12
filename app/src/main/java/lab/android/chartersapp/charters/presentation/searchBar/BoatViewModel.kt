@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lab.android.chartersapp.charters.data.ApiState
-import lab.android.chartersapp.charters.data.Boat
-import lab.android.chartersapp.charters.data.BoatRepository
+import lab.android.chartersapp.charters.data.dataclasses.Boat
+import lab.android.chartersapp.charters.data.repositories.BoatRepository
 import javax.inject.Inject
 
 @HiltViewModel
