@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import lab.android.chartersapp.charters.data.ApiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,7 +115,8 @@ fun SearchScreen(navController: NavController, viewModel: BoatViewModel = hiltVi
                             modifier = Modifier
                                 .padding(8.dp)
                                 .clickable {
-                                    navController.navigate("details/${boat.name}")
+                                    val boatJson = Gson().toJson(boat) // Serialize the `Boat` object
+                                    navController.navigate("details/$boatJson")
                                 }
                         )
                     }
