@@ -30,4 +30,17 @@ class BoatRepository @Inject constructor(private val apiService: BoatsApiService
         throw Exception("Failed to fetch boat by name")
     }
 
+    suspend fun fetchBoatsByPort(port: String): List<Boat> {
+        val response = apiService.getBoatsByPort(port)
+        if (response.isSuccessful) {
+            response.body()?.let {
+                // Return the list of boats
+                return it.boats
+            }
+        }
+
+        // If the response is not successful, handle the error
+        throw Exception("Failed to fetch boats by port")
+    }
+
 }
