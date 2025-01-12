@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import lab.android.chartersapp.R
+import lab.android.chartersapp.charters.data.repositories.PortRepository
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -20,8 +21,11 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import javax.inject.Inject
 
-class MapViewModel : ViewModel() {
+class MapViewModel @Inject constructor(
+    private val portRepository: PortRepository
+) : ViewModel() {
 
     lateinit var map: MapView
     lateinit var locationButton: ImageButton
@@ -90,7 +94,7 @@ class MapViewModel : ViewModel() {
     }
 
     private fun addPorts() {
-        // For testing Only
+        //For testing Only
         val ports = listOf(
             Pair("Giżycko", GeoPoint(54.04, 21.758889)),
             Pair("Węgorzewo", GeoPoint(54.216667, 21.75)),
@@ -103,6 +107,8 @@ class MapViewModel : ViewModel() {
             Pair("Sztynort", GeoPoint(54.083333, 21.116667)),
             Pair("Wilkasy", GeoPoint(54.083333, 21.516667))
         )
+
+//        val ports = portRepository.fetchPorts().map { port -> Pair(port.name, GeoPoint(port.latitude, port.longitude)) }
 
         val items = ArrayList<OverlayItem>()
         for (port in ports) {
