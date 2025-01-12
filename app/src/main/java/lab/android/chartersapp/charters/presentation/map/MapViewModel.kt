@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.location.LocationManager
 import android.preference.PreferenceManager
+import android.util.Log
 import android.widget.ImageButton
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
@@ -28,7 +29,7 @@ class MapViewModel : ViewModel() {
     private lateinit var mapController: IMapController
     private lateinit var context: Context
 
-    fun initMap(context: Context): MapView {
+    fun initMap(context: Context, onPortSelected: (OverlayItem) -> Unit): MapView {
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
 
         map.setTileSource(TileSourceFactory.MAPNIK)
@@ -63,7 +64,7 @@ class MapViewModel : ViewModel() {
         map.overlays.add(scaleBar)
 
         //Adding the ports
-        addPorts()
+        addPorts(onPortSelected)
 
         return map
     }
@@ -83,13 +84,13 @@ class MapViewModel : ViewModel() {
 
             val lat = location.latitude
             val lon = location.longitude
-
+            Log.i("MapViewModel", "Location: $lat, $lon")
             val startPoint = GeoPoint(lat, lon)
             mapController.setCenter(startPoint)
         }
     }
 
-    private fun addPorts() {
+    private fun addPorts(onPortSelected: (OverlayItem) -> Unit) {
         // For testing Only
         val ports = listOf(
             Pair("Giżycko", GeoPoint(54.04, 21.758889)),
@@ -108,7 +109,7 @@ class MapViewModel : ViewModel() {
         for (port in ports) {
             val item = OverlayItem(port.first, "Port: ${port.first}", port.second)
             var icon = BitmapFactory.decodeResource(context.resources, R.drawable.port_sign)
-            icon = Bitmap.createScaledBitmap(icon, 75, 75, false)
+            icon = Bitmap.createScaledBitmap(icon, 150, 150, false)
             item.setMarker(BitmapDrawable(context.resources, icon))
             items.add(item)
         }
@@ -117,8 +118,7 @@ class MapViewModel : ViewModel() {
             items,
             object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
                 override fun onItemSingleTapUp(index: Int, item: OverlayItem): Boolean {
-                    // Placeholder for action when marker is clicked
-                    // Example: show a Toast or navigate to another screen
+                    onPortSelected(item)
                     return true
                 }
 
