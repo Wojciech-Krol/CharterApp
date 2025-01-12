@@ -9,6 +9,7 @@ import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import retrofit2.http.GET
 import retrofit2.Response
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface AuthApiService {
     @POST("login/")
@@ -54,5 +55,5 @@ interface PortsApiService {
     suspend fun getPorts(): Response<PortsResponse>
 
     @GET("ports/details/")
-    suspend fun getPortDetails(): Response<Port>
+    suspend fun getPortDetails(@Query("portName") portName: String): Response<Port>
 }
