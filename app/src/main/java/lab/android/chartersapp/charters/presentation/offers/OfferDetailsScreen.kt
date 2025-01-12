@@ -48,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,7 +93,16 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { boat?.let { Text(it.name) } },
+                title = { boat?.let {
+                    Text(
+                        text = it.name,
+                        style = TextStyle(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF000000)
+                        )
+                    )
+                } },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -212,7 +222,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp)
-                    .size(30.dp)
+                    .size(40.dp)
             ) {
                 Button(onClick = {
                     val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
