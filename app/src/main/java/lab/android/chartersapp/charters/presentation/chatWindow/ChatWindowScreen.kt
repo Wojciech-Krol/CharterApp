@@ -33,10 +33,7 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
     val chatsState by viewModel.chats.observeAsState()
     val coroutineScope = rememberCoroutineScope()
 
-    val mockMessages = remember { mutableStateListOf<Pair<String, Boolean>>(
-        "Hello, how can I help you?" to false,
-        "I need information about boat rentals." to true
-    ) }
+    val mockMessages = remember { mutableStateListOf<Pair<String, Boolean>>() }
 
     LaunchedEffect(chatsState) {
         val updatedChat = (chatsState as? ApiState.Success<List<Chat>>)?.data?.find { it.id == chat.id }
@@ -76,7 +73,7 @@ fun ChatWindowScreen(navController: NavController, chatJson: String, viewModel: 
                     Box(
                         modifier = Modifier
                             .background(
-                                if (isUser) Color(0xFF0A84FF) else Color(0xFFE0E0E0), // Blue for user, gray for others
+                                if (isUser) MaterialTheme.colorScheme.primary else Color(0xFFE0E0E0), // Blue for user, gray for others
                                 shape = MaterialTheme.shapes.medium
                             )
                             .padding(12.dp)
