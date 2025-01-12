@@ -26,7 +26,7 @@ import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import lab.android.chartersapp.charters.data.Boat
+import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
 import lab.android.chartersapp.charters.presentation.map.MapScreen
@@ -65,7 +65,10 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("home_page") {
                             val viewModel: MapViewModel by viewModels()
-                            MapScreen(viewModel = viewModel)
+                            MapScreen(
+                                viewModel = viewModel,
+                                navController = navController
+                            )
                         }
 
                         composable("chat_page") {
