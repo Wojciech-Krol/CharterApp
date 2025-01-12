@@ -12,7 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,7 +26,7 @@ import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import lab.android.chartersapp.charters.data.Boat
+
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
@@ -63,8 +63,8 @@ class MainActivity : ComponentActivity() {
                             LoginPageScreen(navController, viewModel)
                         }
                         composable("home_page") {
-                            val viewModel: BoatViewModel by viewModels()
-                            OfferListScreen(viewModel = viewModel)
+                            val viewModel: MapViewModel by viewModels()
+                            MapScreen(viewModel = viewModel)
                         }
 
                         composable("chat_page"){
