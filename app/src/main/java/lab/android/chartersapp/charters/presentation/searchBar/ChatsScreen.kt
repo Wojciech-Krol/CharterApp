@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import lab.android.chartersapp.charters.data.ApiState
-import lab.android.chartersapp.charters.data.Chat
+import lab.android.chartersapp.charters.data.dataclasses.Chat
 
 @Composable
 fun ChatsScreen(
@@ -29,6 +29,24 @@ fun ChatsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getChats()
+    }
+
+    when (chatsState) {
+        is ApiState.Loading -> {
+            Text("Loading...")
+        }
+        is ApiState.Success<*> -> {
+            val chatData = (chatsState as ApiState.Success<List<Chat>>).data
+            LazyColumn {
+                items(chatData.size) { index ->
+                    val chat = chatData[index]
+                    Text(text = "dummy")
+                }
+            }
+        }
+        is ApiState.Error -> {
+            Text("Error fetching chats: ${(chatsState as ApiState.Error).message}")
+        }
     }
 
     Column(
@@ -46,10 +64,10 @@ fun ChatsScreen(
                 }
             }
             is ApiState.Success<*> -> {
-                val chats = (chatsState as ApiState.Success<List<Chat>>).data
+                val chatData = (chatsState as ApiState.Success<List<Chat>>).data
                 LazyColumn {
-                    items(chats.size) { index ->
-                        val chat = chats[index]
+                    items(chatData.size) { index ->
+                        val chat = chatData[index]
                         Card(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
@@ -65,14 +83,14 @@ fun ChatsScreen(
                                     .padding(16.dp)
                             ) {
                                 Text(
-                                    text = chat.ownerName,
+                                    text = chat.title,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF333333)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = chat.lastMessage,
+                                    text = chat.title,
                                     fontSize = 14.sp,
                                     color = Color(0xFF666666)
                                 )

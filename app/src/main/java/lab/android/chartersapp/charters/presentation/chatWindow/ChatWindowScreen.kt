@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,10 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import lab.android.chartersapp.charters.data.Chat
+import lab.android.chartersapp.charters.data.dataclasses.Chat
 import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun ChatWindowScreen(
@@ -28,32 +25,27 @@ fun ChatWindowScreen(
     chatJson: String,
     viewModel: ChatsViewModel = hiltViewModel()
 ) {
-    val chat = remember { Gson().fromJson(chatJson, Chat::class.java) }
+    val chatData = remember { Gson().fromJson(chatJson, Chat::class.java) }
     var message by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
-    val dateFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val coroutineScope = rememberCoroutineScope()
 
-    val messages = remember { mutableStateListOf<Pair<String, Boolean>>() }
+    // Fetch messages for the current chat
+    val messages = remember { mutableStateListOf<String>() }
 
-    LaunchedEffect(chat.id) {
-        val selectedChat = viewModel.getChatById(chat.id)
-        if (selectedChat != null) {
-            messages.clear()
-            selectedChat.lastMessage.split("\n").forEach {
-                messages.add(it to false) // Mock previous messages
-            }
-        }
+    LaunchedEffect(chatData.id) {
+        messages.clear()
+        messages.addAll(viewModel.messages(chatData.id))
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFEFEFF4)) // Light gray background
+            .background(Color(0xFFEFEFF4))
             .padding(8.dp)
     ) {
         Text(
-            text = "Chat with ${chat.ownerName}",
+            text = "Chat with top",
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF333333)
@@ -66,39 +58,22 @@ fun ChatWindowScreen(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 8.dp)
         ) {
-            messages.forEach { (msg, isUser) ->
+            messages.forEach { msg ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     Box(
                         modifier = Modifier
-                            .background(
-                                if (isUser) MaterialTheme.colorScheme.primary else Color(0xFFE0E0E0), // Blue for user, gray for others
-                                shape = MaterialTheme.shapes.medium
-                            )
+                            .background(Color(0xFFE0E0E0), shape = MaterialTheme.shapes.medium)
                             .padding(12.dp)
                     ) {
-                        Column {
-                            Text(
-                                text = msg,
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontSize = 16.sp,
-                                    color = if (isUser) Color.White else Color.Black
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = dateFormat.format(Date()),
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontSize = 12.sp,
-                                    color = if (isUser) Color(0xFFCCE7FF) else Color(0xFF757575)
-                                ),
-                                modifier = Modifier.align(Alignment.End)
-                            )
-                        }
+                        Text(
+                            text = msg,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                        )
                     }
                 }
             }
@@ -120,7 +95,8 @@ fun ChatWindowScreen(
                 onClick = {
                     if (message.isNotBlank()) {
                         coroutineScope.launch {
-                            messages.add(message to true) // Add user message
+                            messages.add(message)
+                            viewModel.createMessage(chatData.id, message)
                             message = ""
                             scrollState.animateScrollTo(scrollState.maxValue)
                         }
@@ -131,14 +107,14 @@ fun ChatWindowScreen(
             }
         }
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                navController.popBackStack()
+            },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(text = "Back")
         }
-    }
 
-    LaunchedEffect(key1 = messages.size) {
-        scrollState.animateScrollTo(scrollState.maxValue)
     }
 }
+

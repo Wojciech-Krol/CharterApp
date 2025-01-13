@@ -1,10 +1,11 @@
 package lab.android.chartersapp.charters.data
 
-import android.graphics.drawable.Drawable
 import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.data.dataclasses.BoatPhoto
 import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
+import lab.android.chartersapp.charters.data.dataclasses.Chat
+import lab.android.chartersapp.charters.data.dataclasses.ChatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.Port
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
@@ -88,4 +89,15 @@ interface PortsApiService {
 
     @GET("port/details/")
     suspend fun getPortDetails(@Query("portName") portName: String): Response<Port>
+}
+
+interface ChatsApiService {
+
+    @GET("chats/")
+    suspend fun getAllChats(): Response<ChatsResponse>
+
+    @POST("chats/create/")
+    suspend fun createChat(
+        @Query("title") title: String
+    ): Response<Chat>
 }

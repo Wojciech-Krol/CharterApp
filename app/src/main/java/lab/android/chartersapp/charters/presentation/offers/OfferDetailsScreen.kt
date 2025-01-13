@@ -228,16 +228,19 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = {
-                        val newChat = viewModel.createChat(item?.name ?: "Unknown Owner")
-                        val chatJson = Gson().toJson(newChat) // Serialize the `Chat` object
-                        navController.navigate("chat_window/$chatJson")
+                        viewModel.createChat(item?.name ?: "Unknown Owner", onSuccess = { chat ->
+                            val chatJson = Gson().toJson(chat)
+                            navController.navigate("chat_window/$chatJson")
+                        }, onError = { errorMessage ->
+                            Log.e("OfferDetailScreen", errorMessage)
+                        })
                     }) {
                         Text("Chat with Owner")
                     }
 
                     Button(onClick = {
                         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:") // Tylko aplikacje email powinny obsługiwać to
+                            data = Uri.parse("mailto:") // Only email apps should handle this
                             putExtra(Intent.EXTRA_EMAIL, arrayOf(item?.contactEmail))
                             putExtra(Intent.EXTRA_SUBJECT, "Inquiry about ${item?.name}")
                         }
@@ -248,7 +251,8 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
                 }
             }
 
-            }}
+
+        }}
 
         // Show Material Date Range Picker
         if (showDatePicker) {
