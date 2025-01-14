@@ -68,6 +68,7 @@ dependencies {
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.ui.test.android)
 
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
@@ -122,4 +123,8 @@ dependencies {
     implementation("org.osmdroid:osmdroid-geopackage:6.1.20") {
         exclude(group = "com.j256.ormlite")
     }
+
+    // OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
 }

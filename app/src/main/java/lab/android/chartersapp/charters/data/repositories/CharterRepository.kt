@@ -2,6 +2,8 @@ package lab.android.chartersapp.charters.data.repositories
 
 import lab.android.chartersapp.charters.data.ChartersApiService
 import lab.android.chartersapp.charters.data.dataclasses.Charter
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Date
 import javax.inject.Inject
 
@@ -29,7 +31,14 @@ class CharterRepository @Inject constructor(private val apiService: ChartersApiS
     }
 
     suspend fun addCharter(boatName: String, startDate: Date, endDate: Date): Boolean {
-        val response = apiService.addCharter(boatName, startDate.toString(), endDate.toString())
+        val startDateString = startDate.toString()
+        val endDateString = endDate.toString()
+
+        val boatNameBody = boatName.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val startDateBody = startDateString.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val endDateBody = endDateString.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+        val response = apiService.addCharter(boatNameBody, startDateBody, endDateBody)
         if (response.isSuccessful) {
             response.body()?.let {
                 if (it.status == "success") {

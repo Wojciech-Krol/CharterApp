@@ -1,15 +1,25 @@
 package lab.android.chartersapp.charters.data.repositories
 
+import android.util.Log
 import lab.android.chartersapp.charters.data.AuthApiService
+import lab.android.chartersapp.charters.data.dataclasses.LoginRequest
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(private val apiService: AuthApiService) {
     suspend fun login(username: String, password: String): Boolean {
-        val response = apiService.login(username, password)
+        val usernameBody = username.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val passwordBody = password.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+        val response = apiService.login(usernameBody, passwordBody)
         if (response.isSuccessful) {
             response.body()?.let {
                 if (it.status == "success") {
                     return true
+                }
+                else {
+                    return false
                 }
             }
         }
@@ -31,7 +41,10 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
     }
 
     suspend fun register(username: String, password: String, email: String): Boolean {
-        val response = apiService.register(username, password, email)
+        val usernameBody = username.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val passwordBody = password.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+        val response = apiService.register(usernameBody, passwordBody)
         if (response.isSuccessful) {
             response.body()?.let {
                 if (it.status == "success") {
@@ -54,7 +67,10 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
     }
 
     suspend fun updatePassword(oldPassword: String, newPassword: String): Boolean {
-        val response = apiService.changePassword(oldPassword, newPassword)
+        val oldPasswordBody = oldPassword.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val newPasswordBody = newPassword.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+        val response = apiService.changePassword(oldPasswordBody, newPasswordBody)
         if (response.isSuccessful) {
             response.body()?.let {
                 if (it.status == "success") {
@@ -67,7 +83,9 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
     }
 
     suspend fun updateEmail(newEmail: String): Boolean {
-        val response = apiService.changeEmail(newEmail)
+        val newEmailBody = newEmail.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+        val response = apiService.changeEmail(newEmailBody)
         if (response.isSuccessful) {
             response.body()?.let {
                 if (it.status == "success") {
@@ -77,5 +95,18 @@ class AuthRepository @Inject constructor(private val apiService: AuthApiService)
         }
 
         throw Exception("Failed to update email, response code: ${response.code()}, message: ${response.message()}")
+    }
+
+    suspend fun getSession(): Boolean {
+        val response = apiService.getSession()
+        if (response.isSuccessful) {
+            response.body()?.let {
+                if (it.status == "success") {
+                    return true
+                }
+            }
+        }
+
+        throw Exception("Failed to get session, response code: ${response.code()}, message: ${response.message()}")
     }
 }

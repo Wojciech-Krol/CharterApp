@@ -50,7 +50,7 @@ class NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://10.0.2.2:8000/db/")
+            .baseUrl("https://192.168.1.27:8000/db/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -73,18 +73,20 @@ class NetworkModule {
         return retrofit.create(AuthApiService::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideChartersApiService(retrofit: Retrofit): ChartersApiService {
-        return retrofit.create(ChartersApiService::class.java)
-    }
-
 }
 
 class LoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         Log.d("HTTP Request", "URL: ${request.url}")
+
+        val requestBody = request.body
+        if (requestBody != null) {
+            val buffer = okio.Buffer()
+            requestBody.writeTo(buffer)
+            val charset = requestBody.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
+            Log.d("HTTP Request", "Body: ${buffer.readString(charset)}")
+        }
 
         val response = chain.proceed(request)
         val responseBody = response.body
@@ -97,6 +99,7 @@ class LoggingInterceptor : Interceptor {
             val charset = responseBody?.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
             val bodyString = buffer?.clone()?.readString(charset)
             Log.d("HTTP Response", "Body: $bodyString")
+
         }
 
         return response
