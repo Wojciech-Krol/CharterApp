@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import lab.android.chartersapp.R
 import lab.android.chartersapp.charters.data.ApiState
@@ -51,6 +52,8 @@ class MapViewModel @Inject constructor(
     private lateinit var mapController: IMapController
 
     fun initMap(context: Context, onPortSelected: (OverlayItem) -> Unit): MapView {
+        // Fetch and add the ports
+        getPorts()
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
 
         map.setTileSource(TileSourceFactory.MAPNIK)
@@ -83,8 +86,6 @@ class MapViewModel @Inject constructor(
         scaleBar.setScaleBarOffset(15, 15)
         map.overlays.add(scaleBar)
 
-        // Fetch and add the ports
-        getPorts()
         addPorts(onPortSelected)
 
         return map
@@ -138,37 +139,51 @@ class MapViewModel @Inject constructor(
 
     private fun addPorts(onPortSelected: (OverlayItem) -> Unit) {
         viewModelScope.launch {
-            val portsResult = _ports.value
-            Log.i("MapViewModel", "Ports result: $portsResult")
-            if (portsResult is ApiState.Success) {
-                val ports = portsResult.data
+            var retryCount = 0
+            val maxRetries = 3
+            val retryDelay = 1000L // 2 seconds
 
-                val items = ArrayList<OverlayItem>()
-                for (port in ports) {
-                    val item = OverlayItem(port.first, "Port: ${port.first}", port.second)
-                    var icon = BitmapFactory.decodeResource(context.resources, R.drawable.port_sign)
-                    icon = Bitmap.createScaledBitmap(icon, 150, 150, false)
-                    item.setMarker(BitmapDrawable(context.resources, icon))
-                    items.add(item)
+            while (retryCount < maxRetries) {
+                val portsResult = _ports.value
+                Log.i("MapViewModel", "Ports result: $portsResult")
+                if (portsResult is ApiState.Success) {
+                    val ports = portsResult.data
+
+                    val items = ArrayList<OverlayItem>()
+                    for (port in ports) {
+                        val item = OverlayItem(port.first, "Port: ${port.first}", port.second)
+                        var icon = BitmapFactory.decodeResource(context.resources, R.drawable.port_sign)
+                        icon = Bitmap.createScaledBitmap(icon, 150, 150, false)
+                        item.setMarker(BitmapDrawable(context.resources, icon))
+                        items.add(item)
+                    }
+
+                    val overlay = ItemizedIconOverlay(
+                        items,
+                        object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
+                            override fun onItemSingleTapUp(index: Int, item: OverlayItem): Boolean {
+                                onPortSelected(item)
+                                return true
+                            }
+
+                            override fun onItemLongPress(index: Int, item: OverlayItem): Boolean {
+                                return false
+                            }
+                        },
+                        context
+                    )
+                    map.overlays.add(overlay)
+                    break
+                } else {
+                    Log.e("MapViewModel", "Failed to fetch ports, retrying... ($retryCount/$maxRetries)")
+                    retryCount++
+                    delay(retryDelay)
+                    getPorts() // Retry fetching ports
                 }
+            }
 
-                val overlay = ItemizedIconOverlay(
-                    items,
-                    object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
-                        override fun onItemSingleTapUp(index: Int, item: OverlayItem): Boolean {
-                            onPortSelected(item)
-                            return true
-                        }
-
-                        override fun onItemLongPress(index: Int, item: OverlayItem): Boolean {
-                            return false
-                        }
-                    },
-                    context
-                )
-                map.overlays.add(overlay)
-            } else {
-                Log.e("MapViewModel", "Failed to fetch ports")
+            if (retryCount == maxRetries) {
+                Log.e("MapViewModel", "Failed to fetch ports after $maxRetries retries")
             }
         }
     }

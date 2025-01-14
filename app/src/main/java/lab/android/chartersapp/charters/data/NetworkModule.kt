@@ -67,6 +67,12 @@ class NetworkModule {
         return retrofit.create(PortsApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
+        return retrofit.create(AuthApiService::class.java)
+    }
+
 }
 
 class LoggingInterceptor : Interceptor {
