@@ -1,6 +1,7 @@
 package lab.android.chartersapp.charters.presentation.offers
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -28,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.MaterialTheme
@@ -37,14 +39,14 @@ import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,8 +55,61 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import lab.android.chartersapp.R
+import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
+import androidx.compose.material3.SelectableDates
+import lab.android.chartersapp.charters.data.dataclasses.Charter
+import java.time.LocalDate
+import java.util.Calendar
+import java.util.TimeZone
+
+fun convertToUtcMillis(dateString: String): Long {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    val date = dateFormat.parse(dateString)
+    return date?.time ?: 0L
+}
+
+fun getDatesBetween(startDate: String, endDate: String): List<Long> {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    val start = dateFormat.parse(startDate)
+    val end = dateFormat.parse(endDate)
+    val dates = mutableListOf<Long>()
+
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.time = start
+
+    while (calendar.time <= end) {
+        dates.add(calendar.timeInMillis)
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+    }
+
+    return dates
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+object PastOrPresentSelectableDates : SelectableDates {
+    private val charterDates = mutableListOf<Long>()
+
+    fun setCharterDates(dates: List<Long>) {
+        charterDates.clear()
+        charterDates.addAll(dates)
+        Log.i("SelectableDates", "Charter dates: $charterDates")
+    }
+
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return utcTimeMillis > System.currentTimeMillis() && !charterDates.contains(utcTimeMillis)
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        return year >= LocalDate.now().year
+    }
+}
 
 data class CarouselItem(
     val id: Int,
@@ -65,42 +120,51 @@ data class CarouselItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfferDetailScreen(item: Boat?, navController: NavController) {
-    val items = listOf(
-        CarouselItem(0, R.drawable.carousel_image_1, "Image 1 description"),
-        CarouselItem(1, R.drawable.carousel_image_2, "Image 2 description"),
-        CarouselItem(2, R.drawable.carousel_image_3, "Image 3 description")
-    )
-
-    // State to manage the visibility of the date picker
     var showDatePicker by remember { mutableStateOf(false) }
-
-    // State to store the selected date range
-    val datePickerState = rememberDateRangePickerState()
-
+    val datePickerState = rememberDateRangePickerState(selectableDates = PastOrPresentSelectableDates)
     val boatViewModel: BoatViewModel = hiltViewModel()
-
-    // State to store the selected boat
     var boat by remember { mutableStateOf<Boat?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var dateError by remember { mutableStateOf<String?>(null) }
 
-    // Fetch the boat when the screen is loaded
     LaunchedEffect(item) {
-       boat=item
+        boat = item
+        boat?.name?.let {
+            boatViewModel.getBoatPhotos(it)
+            boatViewModel.getCharters(it)
+        }
     }
+
+
+    val boatPhotosState by boatViewModel.boatPhotos.observeAsState(ApiState.Loading)
+    val boatImagesState by boatViewModel.boatImages.observeAsState(ApiState.Loading)
+    val chartersState by boatViewModel.charters.observeAsState(ApiState.Loading)
+
+    LaunchedEffect(chartersState) {
+        if (chartersState is ApiState.Success) {
+            val charters = (chartersState as ApiState.Success<List<Charter>>).data
+            val charterDates = charters.flatMap { charter ->
+                getDatesBetween(charter.startDate, charter.endDate)
+            }
+            PastOrPresentSelectableDates.setCharterDates(charterDates)
+        }
+    }
+
     errorMessage?.let { Log.e("error", it) }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { boat?.let {
-                    Text(
-                        text = it.name,
-                        style = TextStyle(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF000000)
+                title = {
+                    boat?.let {
+                        Text(
+                            text = it.name,
+                            style = TextStyle(
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
                         )
-                    )
-                } },
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -114,44 +178,62 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            HorizontalMultiBrowseCarousel(
-                state = rememberCarouselState(0) { items.size },
-                preferredItemWidth = 504.dp, // Double the original width (252.dp * 2)
-                maxSmallItemWidth = 112.dp, // Double the original small item width (56.dp * 2)
-                itemSpacing = 20.dp
-            ) { i ->
-                val item = items[i]
-                Image(
-                    painter = painterResource(id = item.imageResId),
-                    contentDescription = item.contentDescription,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .width(504.dp) // Match preferred item width
-                        .height(252.dp) // Half the assumed original height (252.dp / 2)
-                        .padding(8.dp)
-                )
+            when (boatImagesState) {
+                is ApiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is ApiState.Success -> {
+                    val photos = (boatImagesState as ApiState.Success<List<Bitmap>>).data
+                    HorizontalMultiBrowseCarousel(
+                        state = rememberCarouselState(0) { photos.size },
+                        preferredItemWidth = 504.dp,
+                        maxSmallItemWidth = 112.dp,
+                        itemSpacing = 20.dp
+                    ) { i ->
+                        val photo = photos[i]
+                        Image(
+                            bitmap = photo.asImageBitmap(),
+                            contentDescription = "Boat photo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .width(504.dp)
+                                .height(252.dp)
+                                .padding(2.dp)
+                        )
+                    }
+                }
+                is ApiState.Error -> {
+                    errorMessage = (boatImagesState as ApiState.Error).message
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Failed to load photos: $errorMessage")
+                    }
+                }
             }
-
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(256.dp)
-                    .verticalScroll(rememberScrollState()) // Make the Column scrollable
+                    .verticalScroll(rememberScrollState())
                     .padding(4.dp)
             ) {
-                // Boat name and model
                 Text(
                     text = "${boat?.name} (${boat?.boatModel})",
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF000000)
                     ),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(4.dp)
                 )
 
-                // General Information
                 InformationSection(title = "General Information", details = listOf(
                     "Production Year: ${boat?.productionYear}",
                     "Company: ${boat?.company}",
@@ -159,21 +241,18 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     "Description: ${boat?.description}"
                 ))
 
-                // Dimensions
                 InformationSection(title = "Dimensions", details = listOf(
                     "Length: ${boat?.length} meters",
                     "Width: ${boat?.width} meters",
                     "Draft: ${boat?.draft} meters"
                 ))
 
-                // Pricing & Accommodation
                 InformationSection(title = "Pricing & Accommodation", details = listOf(
                     "Price per Day: ${boat?.pricePerDay} USD",
                     "Beds: ${boat?.beds}"
                 ))
             }
 
-            // Button to show the date picker dialog
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -192,9 +271,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                         fontWeight = FontWeight(400),
                     ),
                     color = MaterialTheme.colorScheme.primary,
-
                 )
-
             }
             Box(
                 contentAlignment = Alignment.Center,
@@ -204,13 +281,12 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
             ) {
                 IconButton(
                     onClick = { showDatePicker = true },
-                    modifier = Modifier
-                        .size(100.dp) // 48.dp (default size) * 5 = 240.dp
+                    modifier = Modifier.size(100.dp)
                 ) {
                     Icon(
                         Icons.Default.DateRange,
                         contentDescription = "Date Picker",
-                        modifier = Modifier.fillMaxSize(), // Ensures the icon scales with the button
+                        modifier = Modifier.fillMaxSize(),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -226,30 +302,40 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = {
-                        val chatJson = Gson().toJson(boat) // Serialize the `Boat` object
+                        val chatJson = Gson().toJson(boat)
                         navController.navigate("chat_window/$chatJson")
                     }) {
                         Text("Chat with Owner")
                     }
                     Button(onClick = {
                         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:") // Only email apps should handle this
+                            data = Uri.parse("mailto:")
                             putExtra(Intent.EXTRA_EMAIL, arrayOf(boat?.contactEmail))
                             putExtra(Intent.EXTRA_SUBJECT, "Inquiry about ${boat?.name}")
+                            putExtra(Intent.EXTRA_TEXT, "Hello, I am interested in chartering ${boat?.name}")
                         }
                         navController.context.startActivity(emailIntent)
                     }) {
                         Text("Contact Owner")
                     }
                 }
-            }}
-
-        // Show Material Date Range Picker
+            }
+        }
         if (showDatePicker) {
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
+                    TextButton(onClick = {
+                        showDatePicker = false
+                        if (datePickerState.selectedStartDateMillis != null && datePickerState.selectedEndDateMillis != null) {
+                            val startDate =
+                                datePickerState.selectedStartDateMillis.toFormattedDate()
+                            val endDate = datePickerState.selectedEndDateMillis.toFormattedDate()
+                            Log.d("DateRangePicker", "Selected: $startDate to $endDate")
+                        } else {
+                            dateError = "Please select a date range"
+                        }
+                    }) {
                         Text("OK")
                     }
                 },
@@ -257,15 +343,17 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     TextButton(onClick = { showDatePicker = false }) {
                         Text("Cancel")
                     }
+                },
+                content = {
+                    DateRangePicker(
+                        state = datePickerState
+                    )
                 }
-            ) {
-                DateRangePicker(state = datePickerState)
-            }
+            )
         }
-
-
     }
 }
+
 @Composable
 fun InformationSection(title: String, details: List<String>) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -284,7 +372,6 @@ fun InformationSection(title: String, details: List<String>) {
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color(0xFF000000)
                 ),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
@@ -292,9 +379,8 @@ fun InformationSection(title: String, details: List<String>) {
     }
 }
 
-// Extension function to format the date from timestamp
 fun Long?.toFormattedDate(): String {
     return this?.let {
-        java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(it)
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
     } ?: ""
 }

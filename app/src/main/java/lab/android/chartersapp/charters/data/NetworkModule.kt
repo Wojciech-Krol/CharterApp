@@ -73,15 +73,21 @@ class NetworkModule {
         return retrofit.create(AuthApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideChartersApiService(retrofit: Retrofit): ChartersApiService {
+        return retrofit.create(ChartersApiService::class.java)
+    }
+
 }
 
 class LoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        Log.d("HTTP Request", "URL: ${request.url()}")
+        Log.d("HTTP Request", "URL: ${request.url}")
 
         val response = chain.proceed(request)
-        val responseBody = response.body()
+        val responseBody = response.body
         val contentLength = responseBody?.contentLength() ?: 0
 
         if (contentLength != 0L) {

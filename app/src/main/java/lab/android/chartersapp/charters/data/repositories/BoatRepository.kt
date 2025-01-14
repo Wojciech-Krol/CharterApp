@@ -61,16 +61,13 @@ class BoatRepository @Inject constructor(private val apiService: BoatsApiService
         throw Exception("Failed to fetch boat details, response code: ${response.code()}, message: ${response.message()}")
     }
 
-    suspend fun fetchBoatPhotos(boatName: String): List<BoatPhoto> {
+    suspend fun fetchBoatPhotos(boatName: String): List<String> {
         val response = apiService.getBoatPhotos(boatName)
         if (response.isSuccessful) {
             response.body()?.let {
-                // Return the list of photo URLs
                 return it.photos
             }
         }
-
-        // If the response is not successful, handle the error
         throw Exception("Failed to fetch boat photos, response code: ${response.code()}, message: ${response.message()}")
     }
 

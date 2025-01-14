@@ -121,7 +121,7 @@ fun NavigationBarBottom(navController: NavController, viewModel: NavViewModel) {
             title = "Home",
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
-            badgeCount = 5, // Example badge count
+            badgeCount = null, // Example badge count
             hasNews = false
         ),
         NavViewModel.NavigationItem(
@@ -162,11 +162,11 @@ fun NavigationBarBottom(navController: NavController, viewModel: NavViewModel) {
                             badge = {
                                 // Add badge only if there is a badgeCount or hasNews
                                 if (item.badgeCount != null) {
-                                    Badge {
+                                    Badge(containerColor= MaterialTheme.colorScheme.error) {
                                         Text(text = item.badgeCount.toString())
                                     }
                                 } else if (item.hasNews) {
-                                    Badge()
+                                    Badge(containerColor= MaterialTheme.colorScheme.error)
                                 }
                             }
                         ) {

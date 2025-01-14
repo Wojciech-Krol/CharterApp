@@ -28,7 +28,7 @@ data class Boat(
 
 data class BoatPhotoResponse(
     val status: String,
-    val photos: List<BoatPhoto>
+    val photos: List<String>
 )
 
 data class BoatPhoto(

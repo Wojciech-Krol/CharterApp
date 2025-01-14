@@ -1,5 +1,6 @@
 package lab.android.chartersapp.charters.presentation.searchBar
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,12 +14,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.dataclasses.Boat
+import lab.android.chartersapp.charters.data.dataclasses.BoatPhoto
+import lab.android.chartersapp.charters.data.dataclasses.Charter
 import lab.android.chartersapp.charters.data.repositories.BoatRepository
+import lab.android.chartersapp.charters.data.repositories.CharterRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class BoatViewModel @Inject constructor(
-    private val boatRepository: BoatRepository
+    private val boatRepository: BoatRepository,
+    private val charterRepository: CharterRepository
 ) : ViewModel() {
 
     private val _boats = MutableLiveData<ApiState<List<Boat>>>(ApiState.Loading)
@@ -30,6 +35,29 @@ class BoatViewModel @Inject constructor(
     private val _filteredBoats = MutableStateFlow<List<Boat>>(emptyList())
     val filteredBoats: StateFlow<List<Boat>> = _filteredBoats.asStateFlow()
 
+    private val _boatPhotos = MutableLiveData<ApiState<List<String>>>(ApiState.Loading)
+    val boatPhotos: LiveData<ApiState<List<String>>> = _boatPhotos
+
+    private val _boatImages = MutableLiveData<ApiState<List<Bitmap>>>(ApiState.Loading)
+    val boatImages: LiveData<ApiState<List<Bitmap>>> = _boatImages
+
+    private val _charters = MutableLiveData<ApiState<List<Charter>>>(ApiState.Loading)
+    val charters: LiveData<ApiState<List<Charter>>> = _charters
+
+
+    fun getCharters(boatName: String) {
+        viewModelScope.launch {
+            try {
+                val result = charterRepository.fetchChartersByBoat(boatName)
+                Log.d("API Response", "Charters fetched successfully: $result")
+                _charters.value = ApiState.Success(result)
+            } catch (e: Exception) {
+                Log.e("API Error", "Failed to fetch charters: ${e.message}")
+                _charters.value = ApiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
+
     fun getBoats() {
         viewModelScope.launch {
             try {
@@ -40,6 +68,24 @@ class BoatViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("API Error", "Failed to fetch boats: ${e.message}") // Log error
                 _boats.value = ApiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
+
+    fun getBoatPhotos(boatName: String) {
+        viewModelScope.launch {
+            try {
+                val photoUrls = boatRepository.fetchBoatPhotos(boatName)
+                _boatPhotos.value = ApiState.Success(photoUrls)
+                val photos = photoUrls.mapNotNull { boatPhoto ->
+                    boatRepository.fetchPhoto(boatPhoto)
+                }
+                Log.d("API Response", "Boat photos fetched successfully: $photos")
+                _boatImages.value = ApiState.Success(photos)
+            } catch (e: Exception) {
+                Log.e("API Error", "Failed to fetch boat photos: ${e.message}")
+                _boatPhotos.value = ApiState.Error(e.message ?: "Unknown Error")
+                _boatImages.value = ApiState.Error(e.message ?: "Unknown Error")
             }
         }
     }

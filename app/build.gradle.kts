@@ -107,6 +107,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
+    implementation(libs.coil.compose)
+
     //Osmdroid
     implementation("org.osmdroid:osmdroid-android:6.1.20") {
         exclude(group = "com.j256.ormlite")
