@@ -22,21 +22,15 @@ import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 @Composable
 fun ChatWindowScreen(
     navController: NavController,
-    chatJson: String,
+    title: String,
     viewModel: ChatsViewModel = hiltViewModel()
 ) {
-    val chatData = remember { Gson().fromJson(chatJson, Chat::class.java) }
     var message by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
     // Fetch messages for the current chat
     val messages = remember { mutableStateListOf<String>() }
-
-    LaunchedEffect(chatData.id) {
-        messages.clear()
-        messages.addAll(viewModel.messages(chatData.id))
-    }
 
     Column(
         modifier = Modifier
@@ -45,7 +39,7 @@ fun ChatWindowScreen(
             .padding(8.dp)
     ) {
         Text(
-            text = "Chat with top",
+            text = "Chat with ${title}",
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF333333)
@@ -96,7 +90,7 @@ fun ChatWindowScreen(
                     if (message.isNotBlank()) {
                         coroutineScope.launch {
                             messages.add(message)
-                            viewModel.createMessage(chatData.id, message)
+                            viewModel.createMessage(title, message)
                             message = ""
                             scrollState.animateScrollTo(scrollState.maxValue)
                         }

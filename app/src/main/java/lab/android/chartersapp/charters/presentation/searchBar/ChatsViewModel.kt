@@ -1,5 +1,6 @@
 package lab.android.chartersapp.charters.presentation.searchBar
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,8 +27,10 @@ class ChatsViewModel @Inject constructor(private val chatRepository: ChatReposit
             try {
                 val chats = chatRepository.fetchChats()
                 _chats.value = ApiState.Success(chats)
+                Log.d("ChatsViewModel", "Fetched chats: $chats")
             } catch (e: Exception) {
                 _chats.value = ApiState.Error(e.message ?: "Unknown Error")
+                Log.e("ChatsViewModel", "Error fetching chats: ${e.message}")
             }
         }
     }
@@ -35,14 +38,19 @@ class ChatsViewModel @Inject constructor(private val chatRepository: ChatReposit
     fun createChat(title: String, onSuccess: (Chat) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val chat = chatRepository.createChat(title)
-                if (chat != null) {
-                    onSuccess(chat)
+                val success = chatRepository.createChat(title)
+                if (success != null) {
+                    onSuccess(Chat(title = title)) // Assuming Chat has a constructor that takes a title
+                    Log.d("ChatsViewModel", "Chat created: $title")
+                    // Fetch the updated list of chats
+                    getChats()
                 } else {
                     onError("Failed to create chat")
+                    Log.e("ChatsViewModel", "Failed to create chat")
                 }
             } catch (e: Exception) {
                 onError(e.message ?: "Unknown Error")
+                Log.e("ChatsViewModel", "Error creating chat: ${e.message}")
             }
         }
     }
@@ -51,7 +59,7 @@ class ChatsViewModel @Inject constructor(private val chatRepository: ChatReposit
         return listOf("Message 1", "Message 2", "Message 3") // Mock implementation
     }
 
-    fun createMessage(id: Int, message: String) {
+    fun createMessage(title: String, message: String) {
         // Mock implementation, replace with actual data saving logic
     }
 }

@@ -120,4 +120,6 @@ dependencies {
     implementation("org.osmdroid:osmdroid-geopackage:6.1.20") {
         exclude(group = "com.j256.ormlite")
     }
+
+    implementation("com.squareup.okhttp3:okhttp:4.7.2")
 }

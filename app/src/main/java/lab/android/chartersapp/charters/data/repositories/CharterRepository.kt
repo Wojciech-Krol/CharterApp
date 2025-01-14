@@ -5,6 +5,7 @@ import lab.android.chartersapp.charters.data.dataclasses.Charter
 import java.util.Date
 import javax.inject.Inject
 
+
 class CharterRepository @Inject constructor(private val apiService: ChartersApiService) {
     suspend fun fetchChartersByBoat(boatName: String): List<Charter> {
         val response = apiService.getChartersByBoat(boatName)

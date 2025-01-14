@@ -40,7 +40,6 @@ fun ChatsScreen(
             LazyColumn {
                 items(chatData.size) { index ->
                     val chat = chatData[index]
-                    Text(text = "dummy")
                 }
             }
         }
@@ -75,7 +74,7 @@ fun ChatsScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     val chatJson = Uri.encode(Gson().toJson(chat))
-                                    navController.navigate("chat_window/$chatJson")
+                                    navController.navigate("chat_window/${chat.title}")
                                 }
                         ) {
                             Column(

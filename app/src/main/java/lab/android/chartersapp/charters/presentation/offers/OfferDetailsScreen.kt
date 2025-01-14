@@ -37,6 +37,7 @@ import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,7 +54,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import lab.android.chartersapp.R
+import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.dataclasses.Boat
+import lab.android.chartersapp.charters.data.dataclasses.Chat
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 
@@ -86,7 +89,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
 
     // Fetch the boat when the screen is loaded
     LaunchedEffect(item) {
-        boat=item
+        boat = item
     }
     errorMessage?.let { Log.e("error", it) }
     Scaffold(
@@ -132,7 +135,6 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
                         .padding(8.dp)
                 )
             }
-
 
             Column(
                 modifier = Modifier
@@ -228,12 +230,19 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = {
-                        viewModel.createChat(item?.name ?: "Unknown Owner", onSuccess = { chat ->
-                            val chatJson = Gson().toJson(chat)
-                            navController.navigate("chat_window/$chatJson")
-                        }, onError = { errorMessage ->
-                            Log.e("OfferDetailScreen", errorMessage)
-                        })
+                        viewModel.getChats()
+                        viewModel.chats.value?.let { state ->
+                            if (state is ApiState.Success) {
+                                val chats = state.data
+                                val newChat = Chat(title = "${boat?.name}")
+                                viewModel.createChat(newChat.title, onSuccess = {
+                                    Log.d("OfferDetailScreen", "Chat created: ${Gson().toJson(it)}")
+                                    navController.navigate("chat_window/${boat?.name}")
+                                }, onError = { errorMessage ->
+                                    Log.e("OfferDetailScreen", errorMessage)
+                                })
+                            }
+                        }
                     }) {
                         Text("Chat with Owner")
                     }
@@ -250,31 +259,28 @@ fun OfferDetailScreen(item: Boat?, navController: NavController, viewModel: Chat
                     }
                 }
             }
-
-
-        }}
-
-        // Show Material Date Range Picker
-        if (showDatePicker) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancel")
-                    }
-                }
-            ) {
-                DateRangePicker(state = datePickerState)
-            }
         }
-
-
     }
+
+    // Show Material Date Range Picker
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DateRangePicker(state = datePickerState)
+        }
+    }
+}
 
 @Composable
 fun InformationSection(title: String, details: List<String>) {

@@ -90,12 +90,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable(
-                            "chat_window/{chatJson}",
-                            arguments = listOf(navArgument("chatJson") { type = NavType.StringType })
+                            "chat_window/{title}",
+                            arguments = listOf(navArgument("title") { type = NavType.StringType })
                         ) { backStackEntry ->
-                            val chatJson = backStackEntry.arguments?.getString("chatJson")
-                            if (chatJson != null) {
-                                ChatWindowScreen(navController, chatJson)
+                            val title = backStackEntry.arguments?.getString("title")
+                            if (title != null) {
+                                ChatWindowScreen(navController, title)
                             } else {
                                 Text("Chat not found", modifier = Modifier.padding(16.dp))
                             }

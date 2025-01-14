@@ -7,6 +7,5 @@ data class ChatsResponse(
 )
 
 data class Chat(
-        val id: Int,
         val title: String
 )
