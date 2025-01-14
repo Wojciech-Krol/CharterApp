@@ -59,7 +59,7 @@ fun LoginPageScreen(navController: NavController, viewModel: LoginPageViewModel 
         loginResult?.let { result ->
             LaunchedEffect(result) {
                 if (result) {
-                    navController.navigate("account_page") {
+                    navController.navigate("account_page/$username/$password") {
                         popUpTo("login_page") { inclusive = true }
                     }
                 }

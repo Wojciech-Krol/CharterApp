@@ -87,9 +87,17 @@ class MainActivity : ComponentActivity() {
                                 Text("Boat not found", modifier = Modifier.padding(16.dp))
                             }
                         }
-                        composable("account_page"){
+                        composable(
+                            "account_page/{username}/{password}",
+                            arguments = listOf(
+                                navArgument("username") { type = NavType.StringType },
+                                navArgument("password") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val username = backStackEntry.arguments?.getString("username")
+                            val password = backStackEntry.arguments?.getString("password")
                             val viewModel: AccountPageViewModel by viewModels()
-                            AccountPageScreen(viewModel = viewModel)
+                            AccountPageScreen(viewModel = viewModel, username = username, password = password)
                         }
                         composable("login_page"){
                             val viewModel: LoginPageViewModel by viewModels()

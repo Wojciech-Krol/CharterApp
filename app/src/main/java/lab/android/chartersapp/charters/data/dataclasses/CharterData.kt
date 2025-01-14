@@ -6,7 +6,7 @@ data class ChartersResponse(
 )
 
 data class Charter(
-    val boatName: String?,
+    val boat: String?,
     val startDate: String,
     val endDate: String,
     val price: Int?,

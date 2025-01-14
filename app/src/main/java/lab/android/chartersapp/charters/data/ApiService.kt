@@ -1,16 +1,11 @@
 package lab.android.chartersapp.charters.data
 
-import android.graphics.drawable.Drawable
 import lab.android.chartersapp.charters.data.dataclasses.AddCharterResponse
 import lab.android.chartersapp.charters.data.dataclasses.AuthResponse
-import lab.android.chartersapp.charters.data.dataclasses.Boat
-import lab.android.chartersapp.charters.data.dataclasses.BoatPhoto
 import lab.android.chartersapp.charters.data.dataclasses.BoatPhotoResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
-import lab.android.chartersapp.charters.data.dataclasses.LoginRequest
-import lab.android.chartersapp.charters.data.dataclasses.Port
 import lab.android.chartersapp.charters.data.dataclasses.PortResponse
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
@@ -18,13 +13,11 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.Response
-import retrofit2.http.Body
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import retrofit2.http.QueryMap
 
 interface AuthApiService {
     @Multipart
@@ -86,7 +79,7 @@ interface ChartersApiService {
     suspend fun getChartersByBoat(@Query("boatName") boatName: String): Response<ChartersResponse>
 
     @GET("charters/ByUser/")
-    suspend fun getChartersByUser(): Response<ChartersResponse>
+    suspend fun getChartersByUser(@Query("userName") username: String): Response<ChartersResponse>
 
     @POST("charters/add/")
     suspend fun addCharter(

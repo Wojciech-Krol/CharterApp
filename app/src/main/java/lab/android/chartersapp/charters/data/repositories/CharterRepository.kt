@@ -19,8 +19,8 @@ class CharterRepository @Inject constructor(private val apiService: ChartersApiS
         throw Exception("Failed to fetch charters by boat, response code: ${response.code()}, message: ${response.message()}")
     }
 
-    suspend fun fetchChartersByUser(): List<Charter> {
-        val response = apiService.getChartersByUser()
+    suspend fun fetchChartersByUser(userName:String): List<Charter> {
+        val response = apiService.getChartersByUser(userName)
         if (response.isSuccessful) {
             response.body()?.let {
                 return it.charters

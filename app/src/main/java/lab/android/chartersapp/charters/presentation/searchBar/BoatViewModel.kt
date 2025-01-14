@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,18 +75,29 @@ class BoatViewModel @Inject constructor(
 
     fun getBoatPhotos(boatName: String) {
         viewModelScope.launch {
-            try {
-                val photoUrls = boatRepository.fetchBoatPhotos(boatName)
-                _boatPhotos.value = ApiState.Success(photoUrls)
-                val photos = photoUrls.mapNotNull { boatPhoto ->
-                    boatRepository.fetchPhoto(boatPhoto)
+            var retryCount = 0
+            val maxRetries = 3
+            val retryDelay = 1000L // 1 second
+
+            while (retryCount < maxRetries) {
+                try {
+                    val photoUrls = boatRepository.fetchBoatPhotos(boatName)
+                    _boatPhotos.value = ApiState.Success(photoUrls)
+                    val photos = photoUrls.mapNotNull { boatPhoto ->
+                        boatRepository.fetchPhoto(boatPhoto)
+                    }
+                    Log.d("API Response", "Boat photos fetched successfully: $photos")
+                    _boatImages.value = ApiState.Success(photos)
+                    break // Exit the loop if successful
+                } catch (e: Exception) {
+                    Log.e("API Error", "Failed to fetch boat photos: ${e.message}")
+                    _boatPhotos.value = ApiState.Error(e.message ?: "Unknown Error")
+                    _boatImages.value = ApiState.Error(e.message ?: "Unknown Error")
+                    retryCount++
+                    if (retryCount < maxRetries) {
+                        delay(retryDelay) // Wait before retrying
+                    }
                 }
-                Log.d("API Response", "Boat photos fetched successfully: $photos")
-                _boatImages.value = ApiState.Success(photos)
-            } catch (e: Exception) {
-                Log.e("API Error", "Failed to fetch boat photos: ${e.message}")
-                _boatPhotos.value = ApiState.Error(e.message ?: "Unknown Error")
-                _boatImages.value = ApiState.Error(e.message ?: "Unknown Error")
             }
         }
     }
