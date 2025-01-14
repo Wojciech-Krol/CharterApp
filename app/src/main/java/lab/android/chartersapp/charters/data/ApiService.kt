@@ -9,22 +9,29 @@ import lab.android.chartersapp.charters.data.dataclasses.BoatPhotoResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
+import lab.android.chartersapp.charters.data.dataclasses.LoginRequest
 import lab.android.chartersapp.charters.data.dataclasses.Port
 import lab.android.chartersapp.charters.data.dataclasses.PortResponse
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface AuthApiService {
+    @Multipart
     @POST("login/")
     suspend fun login(
-        @Query("username") username: String,
-        @Query("password") password: String
+        @Part("username") username: RequestBody,
+        @Part("password") password: RequestBody
     ): Response<AuthResponse>
 
     @POST("logout/")
@@ -32,23 +39,25 @@ interface AuthApiService {
 
     @POST("register/")
     suspend fun register(
-        @Query("username") username: String,
-        @Query("password") password: String,
-        @Query("email") email: String
+        @Part("username") username: RequestBody,
+        @Part("password") password: RequestBody
     ): Response<AuthResponse>
+
+    @GET("session/")
+    suspend fun getSession(): Response<AuthResponse>
 
     @GET("getUser/")
     suspend fun getUser(): Response<UserData>
 
     @POST("changePassword/")
     suspend fun changePassword(
-        @Query("oldPassword") oldPassword: String,
-        @Query("newPassword") newPassword: String
+        @Part("newPassword") newPassword: RequestBody,
+        @Part("oldPassword") oldPassword: RequestBody
     ): Response<AuthResponse>
 
     @POST("changeEmail/")
     suspend fun changeEmail(
-        @Query("newEmail") newEmail: String
+        @Part("newEmail") newEmail: RequestBody
     ): Response<AuthResponse>
 }
 
@@ -81,9 +90,9 @@ interface ChartersApiService {
 
     @POST("charters/add/")
     suspend fun addCharter(
-        @Query("boatName") boatName: String,
-        @Query("startDate") startDate: String,
-        @Query("endDate") endDate: String
+        @Part("boatName") boatName: RequestBody,
+        @Part("startDate") startDate: RequestBody,
+        @Part("endDate") endDate: RequestBody
     ): Response<AddCharterResponse>
 }
 
