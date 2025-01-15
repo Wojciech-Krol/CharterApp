@@ -6,6 +6,8 @@ import lab.android.chartersapp.charters.data.dataclasses.BoatPhotoResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatResponse
 import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
+import lab.android.chartersapp.charters.data.dataclasses.ChatsResponse
+import lab.android.chartersapp.charters.data.dataclasses.MessagesResponse
 import lab.android.chartersapp.charters.data.dataclasses.PortResponse
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
@@ -13,6 +15,8 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.Response
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -95,4 +99,30 @@ interface PortsApiService {
 
     @GET("port/details/")
     suspend fun getPortDetails(@Query("portName") portName: String): Response<PortResponse>
+}
+
+interface ChatsApiService {
+
+    @GET("chats/")
+    suspend fun getAllChats(): Response<ChatsResponse>
+
+    @FormUrlEncoded
+    @POST("chats/create/")
+    suspend fun createChat(
+        @Field("title") title: String
+    ): Response<Any>
+}
+
+interface MessagesApiService {
+    @GET("messages/")
+    suspend fun getMessages(
+        @Query("chat_title") chatTitle: String
+    ): Response<MessagesResponse>
+
+    @FormUrlEncoded
+    @POST("messages/create/")
+    suspend fun sendMessage(
+        @Field("chat_title") chatTitle: String,
+        @Field("content") message: String
+    ): Response<Any>
 }

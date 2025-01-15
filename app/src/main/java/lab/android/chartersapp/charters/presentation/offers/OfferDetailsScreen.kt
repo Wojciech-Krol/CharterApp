@@ -62,6 +62,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.material3.SelectableDates
 import lab.android.chartersapp.charters.data.dataclasses.Charter
+import lab.android.chartersapp.charters.data.dataclasses.Chat
+import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.TimeZone
@@ -119,7 +121,7 @@ data class CarouselItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferDetailScreen(item: Boat?, navController: NavController) {
+fun OfferDetailScreen(item: Boat?, navController: NavController,viewModel:ChatsViewModel= hiltViewModel()) {
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDateRangePickerState(selectableDates = PastOrPresentSelectableDates)
     val boatViewModel: BoatViewModel = hiltViewModel()
@@ -302,8 +304,19 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = {
-                        val chatJson = Gson().toJson(boat)
-                        navController.navigate("chat_window/$chatJson")
+                        viewModel.getChats()
+                        viewModel.chats.value?.let { state ->
+                            if (state is ApiState.Success) {
+                                val chats = state.data
+                                val newChat = Chat(title = "${boat?.name}")
+                                viewModel.createChat(newChat.title, onSuccess = {
+                                    Log.d("OfferDetailScreen", "Chat created: ${Gson().toJson(it)}")
+                                    navController.navigate("chat_window/${boat?.name}")
+                                }, onError = { errorMessage ->
+                                    Log.e("OfferDetailScreen", errorMessage)
+                                })
+                            }
+                        }
                     }) {
                         Text("Chat with Owner")
                     }

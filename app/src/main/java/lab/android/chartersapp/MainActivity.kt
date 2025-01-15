@@ -31,6 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import lab.android.chartersapp.charters.data.dataclasses.Boat
 import lab.android.chartersapp.charters.presentation.accountPage.AccountPageScreen
 import lab.android.chartersapp.charters.presentation.accountPage.AccountPageViewModel
+import lab.android.chartersapp.charters.presentation.chatWindow.ChatWindowScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageScreen
 import lab.android.chartersapp.charters.presentation.loginPage.LoginPageViewModel
 import lab.android.chartersapp.charters.presentation.map.MapScreen
@@ -39,6 +40,8 @@ import lab.android.chartersapp.charters.presentation.map.MapViewModel
 import lab.android.chartersapp.charters.presentation.searchBar.BoatViewModel
 import lab.android.chartersapp.charters.presentation.navigation.NavigationBarBottom
 import lab.android.chartersapp.charters.presentation.offers.OfferDetailScreen
+import lab.android.chartersapp.charters.presentation.searchBar.ChatsScreen
+import lab.android.chartersapp.charters.presentation.searchBar.ChatsViewModel
 import lab.android.chartersapp.charters.presentation.searchBar.SearchScreen
 
 @AndroidEntryPoint
@@ -70,8 +73,19 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("chat_page"){
-                            val viewModel: BoatViewModel = hiltViewModel()
-                            SearchScreen(navController,viewModel = viewModel)
+                            val viewModel: ChatsViewModel = hiltViewModel()
+                            ChatsScreen(navController, viewModel = viewModel)
+                        }
+                        composable(
+                            "chat_window/{title}",
+                            arguments = listOf(navArgument("title") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val title = backStackEntry.arguments?.getString("title")
+                            if (title != null) {
+                                ChatWindowScreen(navController, title)
+                            } else {
+                                Text("Chat not found", modifier = Modifier.padding(16.dp))
+                            }
                         }
                         composable(
                             "details/{boatJson}",
