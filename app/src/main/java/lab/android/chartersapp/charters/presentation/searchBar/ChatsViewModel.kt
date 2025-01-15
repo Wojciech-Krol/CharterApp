@@ -11,9 +11,14 @@ import lab.android.chartersapp.charters.data.ApiState
 import lab.android.chartersapp.charters.data.dataclasses.Chat
 import lab.android.chartersapp.charters.data.repositories.ChatRepository
 import javax.inject.Inject
+import lab.android.chartersapp.charters.data.dataclasses.Message
+import lab.android.chartersapp.charters.data.repositories.MessageRepository
 
 @HiltViewModel
-class ChatsViewModel @Inject constructor(private val chatRepository: ChatRepository) : ViewModel() {
+class ChatsViewModel @Inject constructor(
+    private val chatRepository: ChatRepository,
+    private val messageRepository: MessageRepository
+) : ViewModel() {
 
     private val _chats = MutableLiveData<ApiState<List<Chat>>>(ApiState.Loading)
     val chats: LiveData<ApiState<List<Chat>>> = _chats
@@ -25,12 +30,13 @@ class ChatsViewModel @Inject constructor(private val chatRepository: ChatReposit
     fun getChats() {
         viewModelScope.launch {
             try {
-                val chats = chatRepository.fetchChats()
-                _chats.value = ApiState.Success(chats)
-                Log.d("ChatsViewModel", "Fetched chats: $chats")
+                Log.d("ChatsViewModel", "Fetching chats")
+                val fetchedChats = chatRepository.fetchChats()
+                Log.d("ChatsViewModel", "Fetched chats: $fetchedChats")
+                _chats.value = ApiState.Success(fetchedChats)
             } catch (e: Exception) {
-                _chats.value = ApiState.Error(e.message ?: "Unknown Error")
                 Log.e("ChatsViewModel", "Error fetching chats: ${e.message}")
+                _chats.value = ApiState.Error(e.message ?: "Unknown Error")
             }
         }
     }
@@ -55,11 +61,41 @@ class ChatsViewModel @Inject constructor(private val chatRepository: ChatReposit
         }
     }
 
-    fun messages(id: Int): Collection<String> {
-        return listOf("Message 1", "Message 2", "Message 3") // Mock implementation
+    fun getMessages(chatTitle: String): LiveData<ApiState<List<Message>>> {
+        val messagesLiveData = MutableLiveData<ApiState<List<Message>>>(ApiState.Loading)
+        viewModelScope.launch {
+            try {
+                Log.d("ChatsViewModel", "Fetching messages for chat: $chatTitle")
+                val messages = messageRepository.fetchMessages(chatTitle)
+                Log.d("ChatsViewModel", "Fetched messages: $messages")
+                messagesLiveData.value = ApiState.Success(messages)
+            } catch (e: Exception) {
+                Log.e("ChatsViewModel", "Error fetching messages: ${e.message}")
+                messagesLiveData.value = ApiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+        return messagesLiveData
     }
 
-    fun createMessage(title: String, message: String) {
-        // Mock implementation, replace with actual data saving logic
+
+
+    fun createMessage(chatTitle: String, content: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                Log.d("ChatsViewModel", "Sending message: '$content' to chat: $chatTitle")
+                val success = messageRepository.sendMessage(chatTitle, content)
+                if (success) {
+                    Log.d("ChatsViewModel", "Message sent successfully: '$content'")
+                    onSuccess()
+                } else {
+                    Log.e("ChatsViewModel", "Failed to send message")
+                    onError("Failed to send message")
+                }
+            } catch (e: Exception) {
+                Log.e("ChatsViewModel", "Error sending message: ${e.message}")
+                onError(e.message ?: "Unknown Error")
+            }
+        }
     }
+
 }

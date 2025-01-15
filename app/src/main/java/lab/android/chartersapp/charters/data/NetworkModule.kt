@@ -66,5 +66,10 @@ class NetworkModule {
     fun provideChatsApiService(retrofit: Retrofit): ChatsApiService {
         return retrofit.create(ChatsApiService::class.java)
     }
+    @Provides
+    @Singleton
+    fun provideMessagesApiService(retrofit: Retrofit): MessagesApiService {
+        return retrofit.create(MessagesApiService::class.java)
+    }
 
 }

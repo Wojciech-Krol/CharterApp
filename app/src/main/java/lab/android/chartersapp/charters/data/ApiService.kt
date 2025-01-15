@@ -6,6 +6,7 @@ import lab.android.chartersapp.charters.data.dataclasses.BoatsResponse
 import lab.android.chartersapp.charters.data.dataclasses.ChartersResponse
 import lab.android.chartersapp.charters.data.dataclasses.Chat
 import lab.android.chartersapp.charters.data.dataclasses.ChatsResponse
+import lab.android.chartersapp.charters.data.dataclasses.MessagesResponse
 import lab.android.chartersapp.charters.data.dataclasses.Port
 import lab.android.chartersapp.charters.data.dataclasses.PortsResponse
 import lab.android.chartersapp.charters.data.dataclasses.UserData
@@ -105,5 +106,19 @@ interface ChatsApiService {
     @POST("chats/create/")
     suspend fun createChat(
         @Field("title") title: String
+    ): Response<Any>
+}
+
+interface MessagesApiService {
+    @GET("messages/")
+    suspend fun getMessages(
+        @Query("chat_title") chatTitle: String
+    ): Response<MessagesResponse>
+
+    @FormUrlEncoded
+    @POST("messages/create/")
+    suspend fun sendMessage(
+        @Field("chat_title") chatTitle: String,
+        @Field("content") message: String
     ): Response<Any>
 }
