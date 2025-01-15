@@ -7,6 +7,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Date
 import javax.inject.Inject
 
+
 class CharterRepository @Inject constructor(private val apiService: ChartersApiService) {
     suspend fun fetchChartersByBoat(boatName: String): List<Charter> {
         val response = apiService.getChartersByBoat(boatName)

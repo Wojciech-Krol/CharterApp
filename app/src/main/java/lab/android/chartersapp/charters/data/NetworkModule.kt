@@ -66,6 +66,16 @@ class NetworkModule {
     fun providePortsApiService(retrofit: Retrofit): PortsApiService {
         return retrofit.create(PortsApiService::class.java)
     }
+    @Provides
+    @Singleton
+    fun provideChatsApiService(retrofit: Retrofit): ChatsApiService {
+        return retrofit.create(ChatsApiService::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideMessagesApiService(retrofit: Retrofit): MessagesApiService {
+        return retrofit.create(MessagesApiService::class.java)
+    }
 
     @Provides
     @Singleton
