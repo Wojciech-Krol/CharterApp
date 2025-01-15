@@ -301,12 +301,12 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = {
+                    /*Button(onClick = {
                         val chatJson = Gson().toJson(boat)
                         navController.navigate("chat_window/$chatJson")
                     }) {
                         Text("Chat with Owner")
-                    }
+                    }*/
                     Button(onClick = {
                         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:")
