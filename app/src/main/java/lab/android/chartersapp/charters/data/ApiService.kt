@@ -81,11 +81,13 @@ interface ChartersApiService {
     @GET("charters/ByUser/")
     suspend fun getChartersByUser(@Query("userName") username: String): Response<ChartersResponse>
 
+    @Multipart
     @POST("charters/add/")
     suspend fun addCharter(
         @Part("boatName") boatName: RequestBody,
         @Part("startDate") startDate: RequestBody,
-        @Part("endDate") endDate: RequestBody
+        @Part("endDate") endDate: RequestBody,
+        @Part("userName") userName: RequestBody
     ): Response<AddCharterResponse>
 }
 
