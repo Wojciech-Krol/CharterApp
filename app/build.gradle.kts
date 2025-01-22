@@ -124,6 +124,10 @@ dependencies {
         exclude(group = "com.j256.ormlite")
     }
 
+    testImplementation ("org.mockito:mockito-core:4.0.0")
+    testImplementation ("org.mockito:mockito-inline:4.0.0")
+    testImplementation ("org.mockito:mockito-kotlin:4.0.0")
+    testImplementation ("androidx.arch.core:core-testing:2.1.0")
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
