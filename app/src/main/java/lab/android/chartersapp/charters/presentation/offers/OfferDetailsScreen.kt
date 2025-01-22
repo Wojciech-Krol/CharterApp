@@ -221,7 +221,7 @@ fun OfferDetailScreen(item: Boat?, navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(256.dp)
+                    .height(200.dp)
                     .verticalScroll(rememberScrollState())
                     .padding(4.dp)
             ) {

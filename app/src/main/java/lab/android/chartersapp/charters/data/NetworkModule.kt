@@ -41,7 +41,7 @@ class NetworkModule {
         return OkHttpClient.Builder()
             .sslSocketFactory(sslContext.socketFactory, trustManager)
             .hostnameVerifier { _, _ -> true } // Disable hostname verification
-            .addInterceptor(LoggingInterceptor())
+            //.addInterceptor(LoggingInterceptor())
             .build()
     }
 
@@ -50,7 +50,7 @@ class NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://10.0.2.2:8000/db/")
+            .baseUrl("https:///192.168.1.27:8000/db/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -81,33 +81,34 @@ class NetworkModule {
 
 }
 
-class LoggingInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        Log.d("HTTP Request", "URL: ${request.url}")
 
-        val requestBody = request.body
-        if (requestBody != null) {
-            val buffer = okio.Buffer()
-            requestBody.writeTo(buffer)
-            val charset = requestBody.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
-            Log.d("HTTP Request", "Body: ${buffer.readString(charset)}")
-        }
-
-        val response = chain.proceed(request)
-        val responseBody = response.body
-        val contentLength = responseBody?.contentLength() ?: 0
-
-        if (contentLength != 0L) {
-            val source = responseBody?.source()
-            source?.request(Long.MAX_VALUE) // Buffer the entire body.
-            val buffer = source?.buffer
-            val charset = responseBody?.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
-            val bodyString = buffer?.clone()?.readString(charset)
-            Log.d("HTTP Response", "Body: $bodyString")
-
-        }
-
-        return response
-    }
-}
+//class LoggingInterceptor : Interceptor {
+//    override fun intercept(chain: Interceptor.Chain): Response {
+//        val request = chain.request()
+//        Log.d("HTTP Request", "URL: ${request.url}")
+//
+//        val requestBody = request.body
+//        if (requestBody != null) {
+//            val buffer = okio.Buffer()
+//            requestBody.writeTo(buffer)
+//            val charset = requestBody.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
+//            Log.d("HTTP Request", "Body: ${buffer.readString(charset)}")
+//        }
+//
+//        val response = chain.proceed(request)
+//        val responseBody = response.body
+//        val contentLength = responseBody?.contentLength() ?: 0
+//
+//        if (contentLength != 0L) {
+//            val source = responseBody?.source()
+//            source?.request(Long.MAX_VALUE) // Buffer the entire body.
+//            val buffer = source?.buffer
+//            val charset = responseBody?.contentType()?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
+//            val bodyString = buffer?.clone()?.readString(charset)
+//            Log.d("HTTP Response", "Body: $bodyString")
+//
+//        }
+//
+//        return response
+//    }
+//}
