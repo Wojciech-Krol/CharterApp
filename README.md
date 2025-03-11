@@ -1,7 +1,8 @@
 # Yacht Charter Finder
 
 ## 📱 About the App
-Yacht Charter Finder is an Android application that allows users to discover yacht charters on a map and connect with boat owners easily. Whether you're planning a sailing trip or looking for a luxury yacht rental, this app helps you find the perfect boat with just a few taps.
+Yacht Charter Finder is an Android application that allows users to discover yacht charters on a map and connect with boat owners easily. Whether you're planning a sailing trip or looking for a luxury yacht rental, this app helps you find the perfect boat with just a few taps. The app relies on Server Database made with Django. Link to the project: https://github.com/PaxMakos/CharterAppServer
+
 
 ## 🚀 Features
 - 🌍 **Interactive Map** - Browse yacht charters available in different locations.
