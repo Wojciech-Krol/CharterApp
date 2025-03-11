@@ -50,7 +50,7 @@ class NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://10.0.2.2:8000/db/")
+            .baseUrl("https://10.0.2.2:8000/db/") // Change this to your server URL
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
